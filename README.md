@@ -30,4 +30,4 @@ Please adhere to the following principles while contributing to the project:
 3. Write tests on the functional level _and not_ on the integration level (which shouldn't matter anyway).
 4. The package contains both `numpy` and `torch` based algorithms. Let's keep them separated.
 5. The functions shouldn't change the `dtype` or device of the inputs (that is, keep a functional approach)
-6. Try to complement your contributions with simple examples to be added in the `exmample` folder
+6. Try to complement your contributions with simple examples to be added in the `example` folder
