@@ -7,7 +7,7 @@ import numpy as np
 import scipy.linalg
 
 from linear_operator_learning.kernel.structs import EigResult, FitResult
-from linear_operator_learning.utils import sanitize_complex_conjugates, topk
+from linear_operator_learning.kernel.utils import sanitize_complex_conjugates, topk
 
 __all__ = ["eig", "evaluate_eigenfunction"]
 
@@ -26,6 +26,14 @@ def eig(
 
     Returns:
         EigResult: as defined in ``operator_learning.structs``
+
+    Shape:
+        ``K_X'': :math:`(N, N)`, where :math:`N` is the sample size.
+
+        ``K_YX'': :math:`(N, N)`, where :math:`N` is the sample size.
+
+        Output: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
+        where :math:`N` is the sample size and  :math:`R` is the rank of the regressor.
     """
     # SUV.TZ -> V.T K_YX U (right ev = SUvr, left ev = ZVvl)
     U = fit_result["U"]
@@ -35,7 +43,9 @@ def eig(
     W_YX = np.linalg.multi_dot([V.T, r_dim * K_YX, U])
     W_X = np.linalg.multi_dot([U.T, r_dim * K_X, U])
 
-    values, vl, vr = scipy.linalg.eig(W_YX, left=True, right=True)  # Left -> V, Right -> U
+    values, vl, vr = scipy.linalg.eig(
+        W_YX, left=True, right=True
+    )  # Left -> V, Right -> U
     values = sanitize_complex_conjugates(values)
     r_perm = np.argsort(values)
     vr = vr[:, r_perm]
@@ -72,6 +82,15 @@ def evaluate_eigenfunction(
 
     Returns:
         ndarray: Evaluated eigenfunctions
+
+    Shape:
+        ``eig_results``: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
+        where :math:`N` is the sample size and  :math:`R` is the rank of the regressor.
+
+        ``K_Xin_X_or_Y``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to
+        predict and :math:`N` is the sample size.
+
+        Output:
     """
     vr_or_vl = eig_result[which]
     rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
