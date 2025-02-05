@@ -36,6 +36,7 @@ docs = [
 
 [tool.ruff]
 line-length = 100
+exclude = ["docs"]
 
 [tool.ruff.lint]
 select = [
@@ -51,7 +52,7 @@ ignore = [
     "F401", # Don't remove unused imports
 ]
 
-exclude = ["docs"]
+
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
