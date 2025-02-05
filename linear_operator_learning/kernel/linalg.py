@@ -90,7 +90,7 @@ def evaluate_eigenfunction(
         ``K_Xin_X_or_Y``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to
         predict and :math:`N` is the sample size.
 
-        Output: BAD code
+        Output:
     """
     vr_or_vl = eig_result[which]
     rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
