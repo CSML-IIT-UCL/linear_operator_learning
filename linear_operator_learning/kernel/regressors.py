@@ -24,8 +24,8 @@ __all__ = [
 def predict(
     num_steps: int,
     fit_result: FitResult,
-    K_YX: np.ndarray,
-    K_Xin_X: np.ndarray,
+    kernel_YX: np.ndarray,
+    kernel_Xin_X: np.ndarray,
     obs_train_Y: np.ndarray,
 ) -> np.ndarray:
     """Predicts future states using kernel matrices and fitted results.
@@ -33,14 +33,14 @@ def predict(
     Args:
         num_steps (int): Number of steps to predict forward (returns the last prediction)
         fit_result (FitResult): FitResult object containing fitted U and V matrices
-        K_YX (np.ndarray): Kernel matrix between output data and input data (or inducing points for Nystroem)
-        K_Xin_X (np.ndarray): Kernel matrix between initial conditions and input data (or inducing points for Nystroem)
+        kernel_YX (np.ndarray): Kernel matrix between output data and input data (or inducing points for Nystroem)
+        kernel_Xin_X (np.ndarray): Kernel matrix between initial conditions and input data (or inducing points for Nystroem)
         obs_train_Y (np.ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
 
-    Shapes:
-        ``K_YX``: :math:`(N, N)`, where :math:`N` is the number of training data, or inducing points for Nystroem.
+    Shape:
+        ``kernel_YX``: :math:`(N, N)`, where :math:`N` is the number of training data, or inducing points for Nystroem.
 
-        ``K_Xin_X``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to predict.
+        ``kernel_Xin_X``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to predict.
 
         ``obs_train_Y``: :math:`(N, *)`, where :math:`*` is the shape of the observable.
 
@@ -51,9 +51,9 @@ def predict(
     U = fit_result["U"]
     V = fit_result["V"]
     npts = U.shape[0]
-    K_dot_U = K_Xin_X @ U / sqrt(npts)
+    K_dot_U = kernel_Xin_X @ U / sqrt(npts)
     V_dot_obs = V.T @ obs_train_Y / sqrt(npts)
-    V_K_YX_U = np.linalg.multi_dot([V.T, K_YX, U]) / npts
+    V_K_YX_U = np.linalg.multi_dot([V.T, kernel_YX, U]) / npts
     M = np.linalg.matrix_power(V_K_YX_U, num_steps - 1)
     return np.linalg.multi_dot([K_dot_U, M, V_dot_obs])
 
@@ -72,6 +72,8 @@ def pcr(
         rank (int | None, optional): Rank of the estimator. Defaults to None.
         svd_solver (Literal[ &quot;arnoldi&quot;, &quot;full&quot; ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
 
+    Shape:
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
     """
     npts = kernel_X.shape[0]
     add_diagonal_(kernel_X, npts * tikhonov_reg)
@@ -111,6 +113,15 @@ def nystroem_pcr(
         tikhonov_reg (float, optional): Tikhonov (ridge) regularization parameter. Defaults to 0.0.
         rank (int | None, optional): Rank of the estimator. Defaults to None.
         svd_solver (Literal[ "arnoldi", "full" ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
+
+    Shape:
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+
+        ``kernel_Y``: :math:`(N, N)`.
+
+        ``kernel_Xnys``: :math:`(N, M)`, where :math:`M` is the number of Nystroem centers (inducing points).
+
+        ``kernel_Ynys``: :math:`(N, M)`.
     """
     ncenters = kernel_X.shape[0]
     npts = kernel_Xnys.shape[0]
@@ -163,6 +174,11 @@ def reduced_rank(
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter.
         rank (int): Rank of the estimator.
         svd_solver (Literal[ "arnoldi", "full" ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
+
+    Shape:
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+
+        ``kernel_Y``: :math:`(N, N)`.
     """
     # Number of data points
     npts = kernel_X.shape[0]
@@ -231,6 +247,15 @@ def nystroem_reduced_rank(
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter.
         rank (int): Rank of the estimator.
         svd_solver (Literal[ "arnoldi", "full" ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
+
+    Shape:
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+
+        ``kernel_Y``: :math:`(N, N)`.
+
+        ``kernel_Xnys``: :math:`(N, M)`, where :math:`M` is the number of Nystroem centers (inducing points).
+
+        ``kernel_Ynys``: :math:`(N, M)`.
     """
     num_points = kernel_Xnys.shape[0]
     num_centers = kernel_X.shape[0]
@@ -306,6 +331,11 @@ def rand_reduced_rank(
         iterated_power (int, optional): Number of iterations of the power method. Defaults to 1.
         rng_seed (int | None, optional): Random Number Generators seed. Defaults to None.
         precomputed_cholesky (optional): Precomputed Cholesky decomposition. Should be the output of cho_factor evaluated on the regularized kernel matrix.. Defaults to None.
+
+    Shape:
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+
+        ``kernel_Y``: :math:`(N, N)`.
     """
     rng = np.random.default_rng(rng_seed)
     npts = kernel_X.shape[0]
