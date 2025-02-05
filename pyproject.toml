@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "A packet to learn linear operators"
 readme = "README.md"
 authors = [
-    { name = "alekfrohlich", email = "alek.frohlich@gmail.com" }
+    { name = "Alek Frohlich", email = "alek.frohlich@gmail.com" },
+    { name = "Pietro Novelli", email = "pietronvll@gmail.com"}
 ]
 requires-python = ">=3.11"
 dependencies = [
