@@ -36,6 +36,15 @@ def predict(
         K_YX (np.ndarray): Kernel matrix between output data and input data (or inducing points for Nystroem)
         K_Xin_X (np.ndarray): Kernel matrix between initial conditions and input data (or inducing points for Nystroem)
         obs_train_Y (np.ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
+
+    Shapes:
+        ``K_YX``: :math:`(N, N)`, where :math:`N` is the number of training data, or inducing points for Nystroem.
+
+        ``K_Xin_X``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to predict.
+
+        ``obs_train_Y``: :math:`(N, *)`, where :math:`*` is the shape of the observable.
+
+        Output: :math:`(N, *)`.
     """
     # G = S UV.T Z
     # G^n = (SU)(V.T K_YX U)^(n-1)(V.T Z)
