@@ -15,3 +15,10 @@ A package to learn Operators
    :hidden:
 
    Introduction <self>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
+   :hidden:
+
+   reference/kernel
