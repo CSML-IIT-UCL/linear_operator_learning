@@ -16,7 +16,7 @@ To develop this project, please setup `uv`:
 2. `git clone git@github.com:CSML-IIT-UCL/linear_operator_learning.git & cd linear_operator_learning`
 3. `uv sync --dev`
 
-## Optional
+### Optional
 Set up your IDE to automatically apply the `ruff` styling.
 - [VS Code](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
 - [PyCharm](https://plugins.jetbrains.com/plugin/20574-ruff)
