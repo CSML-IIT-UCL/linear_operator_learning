@@ -1,7 +1,7 @@
 [project]
 name = "linear-operator-learning"
 version = "0.1.0"
-description = "A packet to learn linear operators"
+description = "A package to learn linear operators"
 readme = "README.md"
 authors = [
     { name = "alekfrohlich", email = "alek.frohlich@gmail.com" }
