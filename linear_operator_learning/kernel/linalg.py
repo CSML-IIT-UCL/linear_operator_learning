@@ -28,9 +28,9 @@ def eig(
         EigResult: as defined in ``operator_learning.structs``
 
     Shape:
-        ``K_X'': :math:`(N, N)`, where :math:`N` is the sample size.
+        ``K_X``: :math:`(N, N)`, where :math:`N` is the sample size.
 
-        ``K_YX'': :math:`(N, N)`, where :math:`N` is the sample size.
+        ``K_YX``: :math:`(N, N)`, where :math:`N` is the sample size.
 
         Output: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
         where :math:`N` is the sample size and  :math:`R` is the rank of the regressor.
@@ -43,9 +43,7 @@ def eig(
     W_YX = np.linalg.multi_dot([V.T, r_dim * K_YX, U])
     W_X = np.linalg.multi_dot([U.T, r_dim * K_X, U])
 
-    values, vl, vr = scipy.linalg.eig(
-        W_YX, left=True, right=True
-    )  # Left -> V, Right -> U
+    values, vl, vr = scipy.linalg.eig(W_YX, left=True, right=True)  # Left -> V, Right -> U
     values = sanitize_complex_conjugates(values)
     r_perm = np.argsort(values)
     vr = vr[:, r_perm]
