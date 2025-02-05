@@ -11,7 +11,42 @@ from scipy.sparse.linalg import eigs, eigsh
 from linear_operator_learning.kernel.linalg import add_diagonal_, stable_topk
 from linear_operator_learning.kernel.structs import FitResult
 
-__all__ = ["pcr", "nystroem_pcr", "reduced_rank", "nystroem_reduced_rank", "rand_reduced_rank"]
+__all__ = [
+    "predict",
+    "pcr",
+    "nystroem_pcr",
+    "reduced_rank",
+    "nystroem_reduced_rank",
+    "rand_reduced_rank",
+]
+
+
+def predict(
+    num_steps: int,
+    fit_result: FitResult,
+    K_YX: np.ndarray,
+    K_Xin_X: np.ndarray,
+    obs_train_Y: np.ndarray,
+) -> np.ndarray:
+    """Predicts future states using kernel matrices and fitted results.
+
+    Args:
+        num_steps (int): Number of steps to predict forward (returns the last prediction)
+        fit_result (FitResult): FitResult object containing fitted U and V matrices
+        K_YX (np.ndarray): Kernel matrix between output data and input data (or inducing points for Nystroem)
+        K_Xin_X (np.ndarray): Kernel matrix between initial conditions and input data (or inducing points for Nystroem)
+        obs_train_Y (np.ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
+    """
+    # G = S UV.T Z
+    # G^n = (SU)(V.T K_YX U)^(n-1)(V.T Z)
+    U = fit_result["U"]
+    V = fit_result["V"]
+    npts = U.shape[0]
+    K_dot_U = K_Xin_X @ U / sqrt(npts)
+    V_dot_obs = V.T @ obs_train_Y / sqrt(npts)
+    V_K_YX_U = np.linalg.multi_dot([V.T, K_YX, U]) / npts
+    M = np.linalg.matrix_power(V_K_YX_U, num_steps - 1)
+    return np.linalg.multi_dot([K_dot_U, M, V_dot_obs])
 
 
 def pcr(
@@ -57,7 +92,7 @@ def nystroem_pcr(
     rank: int | None = None,  # Rank of the estimator
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
 ) -> FitResult:
-    """Fits the Principal Components estimator using the Nyström method.
+    """Fits the Principal Components estimator using the Nyström method from :footcite:t:`Meanti2023`.
 
     Args:
         kernel_X (np.ndarray): Kernel matrix of the input inducing points.
@@ -111,7 +146,7 @@ def reduced_rank(
     rank: int,  # Rank of the estimator
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
 ) -> FitResult:
-    """Fits the Reduced Rank estimator.
+    """Fits the Reduced Rank estimator from :footcite:t:`Kostic2022`.
 
     Args:
         kernel_X (np.ndarray): Kernel matrix of the input data.
@@ -177,7 +212,7 @@ def nystroem_reduced_rank(
     rank: int,  # Rank of the estimator
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
 ) -> FitResult:
-    """Fits the Nyström Reduced Rank estimator.
+    """Fits the Nyström Reduced Rank estimator from :footcite:t:`Meanti2023`.
 
     Args:
         kernel_X (np.ndarray): Kernel matrix of the input inducing points.
@@ -239,19 +274,6 @@ def nystroem_reduced_rank(
     return result
 
 
-# def rand_reduced_rank(
-#     kernel_X: np.ndarray,  # Kernel matrix of the input data
-#     kernel_Y: np.ndarray,  # Kernel matrix of the output data
-#     tikhonov_reg: float,  # Tikhonov (ridge) regularization parameter
-#     rank: int,  # Rank of the estimator
-#     n_oversamples: int = 5,  # Number of oversamples
-#     optimal_sketching: bool = False,  # Whether to use optimal sketching (slower but more accurate) or not.
-#     iterated_power: int = 1,  # Number of iterations of the power method
-#     rng_seed: int | None = None,
-#     precomputed_cholesky=None,  # Precomputed Cholesky decomposition. Should be the output of cho_factor evaluated on the regularized kernel matrix.
-# ) -> FitResult:
-
-
 def rand_reduced_rank(
     kernel_X: np.ndarray,
     kernel_Y: np.ndarray,
@@ -263,7 +285,7 @@ def rand_reduced_rank(
     rng_seed: int | None = None,
     precomputed_cholesky=None,
 ) -> FitResult:
-    """Fits the Randomized Reduced Rank Estimator.
+    """Fits the Randomized Reduced Rank Estimator from :footcite:t:`Turri2023`.
 
     Args:
         kernel_X (np.ndarray): Kernel matrix of the input data
