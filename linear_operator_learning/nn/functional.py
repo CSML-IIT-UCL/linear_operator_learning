@@ -17,8 +17,15 @@ def vamp_loss(X, Y, schatten_norm: int = 2, center_covariances: bool = True):
     Raises:
         NotImplementedError: If ``schatten_norm`` is not 1 or 2.
 
+    Shape:
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
     Returns:
         torch.Tensor: VAMP score
+
+
     """
     cov_X, cov_Y, cov_XY = (
         covariance(X, center=center_covariances),
@@ -61,6 +68,11 @@ def dp_loss(
         metric_deformation (float, optional): Strength of the metric metric deformation loss: Defaults to 1.0.
         center_covariances (bool, optional): Use centered covariances to compute the Deep Projection score. Defaults to True.
 
+    Shape:
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
     Returns:
         torch.Tensor: Deep Projection score
     """
@@ -88,6 +100,12 @@ def L2_contrastive_loss(X: torch.Tensor, Y: torch.Tensor):
     Args:
         X (torch.Tensor): Input features
         Y (torch.Tensor): Output features
+
+    Shape:
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
     """
     assert X.shape == Y.shape
     assert X.ndim == 2
@@ -110,6 +128,11 @@ def KL_contrastive_score(X: torch.Tensor, Y: torch.Tensor):
         X (torch.Tensor): Input features
         Y (torch.Tensor): Output features
 
+    Shape:
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+
     """
     assert X.shape == Y.shape
     assert X.ndim == 2
@@ -130,6 +153,9 @@ def logfro_loss(cov: torch.Tensor):
 
     Args:
         cov (torch.tensor): A symmetric positive-definite matrix.
+
+    Shape:
+        ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
 
     Returns:
         torch.tensor: Loss function
