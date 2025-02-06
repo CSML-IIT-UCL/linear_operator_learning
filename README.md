@@ -15,6 +15,7 @@ To develop this project, please setup `uv`:
 1. `curl -LsSf https://astral.sh/uv/install.sh | sh`
 2. `git clone git@github.com:CSML-IIT-UCL/linear_operator_learning.git & cd linear_operator_learning`
 3. `uv sync --dev`
+4. `uv run pre-commit install`
 
 ### Optional
 Set up your IDE to automatically apply the `ruff` styling.
