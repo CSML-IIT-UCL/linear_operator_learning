@@ -5,6 +5,7 @@ from warnings import warn
 
 import numpy as np
 import scipy.linalg
+from numpy import ndarray
 
 from linear_operator_learning.kernel.structs import EigResult, FitResult
 from linear_operator_learning.kernel.utils import sanitize_complex_conjugates, topk
@@ -14,15 +15,15 @@ __all__ = ["eig", "evaluate_eigenfunction"]
 
 def eig(
     fit_result: FitResult,
-    K_X: np.ndarray,  # Kernel matrix of the input data
-    K_YX: np.ndarray,  # Kernel matrix between the output data and the input data
+    K_X: ndarray,  # Kernel matrix of the input data
+    K_YX: ndarray,  # Kernel matrix between the output data and the input data
 ) -> EigResult:
     """Computes the eigendecomposition of the transfer operator.
 
     Args:
         fit_result (FitResult): Fit result as defined in ``operator_learning.structs``.
-        K_X (np.ndarray): Kernel matrix of the input data.
-        K_YX (np.ndarray): Kernel matrix between the output data and the input data.
+        K_X (ndarray): Kernel matrix of the input data.
+        K_YX (ndarray): Kernel matrix between the output data and the input data.
 
     Returns:
         EigResult: as defined in ``operator_learning.structs``
@@ -43,9 +44,7 @@ def eig(
     W_YX = np.linalg.multi_dot([V.T, r_dim * K_YX, U])
     W_X = np.linalg.multi_dot([U.T, r_dim * K_X, U])
 
-    values, vl, vr = scipy.linalg.eig(
-        W_YX, left=True, right=True
-    )  # Left -> V, Right -> U
+    values, vl, vr = scipy.linalg.eig(W_YX, left=True, right=True)  # Left -> V, Right -> U
     values = sanitize_complex_conjugates(values)
     r_perm = np.argsort(values)
     vr = vr[:, r_perm]
@@ -70,7 +69,7 @@ def eig(
 def evaluate_eigenfunction(
     eig_result: EigResult,
     which: Literal["left", "right"],
-    K_Xin_X_or_Y: np.ndarray,
+    K_Xin_X_or_Y: ndarray,
 ):
     """Evaluates left or right eigenfunctions using kernel matrices.
 
@@ -97,18 +96,18 @@ def evaluate_eigenfunction(
     return np.linalg.multi_dot([rsqrt_dim * K_Xin_X_or_Y, vr_or_vl])
 
 
-def add_diagonal_(M: np.ndarray, alpha: float):
+def add_diagonal_(M: ndarray, alpha: float):
     """Add alpha to the diagonal of M inplace.
 
     Args:
-        M (np.ndarray): The matrix to modify inplace.
+        M (ndarray): The matrix to modify inplace.
         alpha (float): The value to add to the diagonal of M.
     """
     np.fill_diagonal(M, M.diagonal() + alpha)
 
 
 def stable_topk(
-    vec: np.ndarray,
+    vec: ndarray,
     k_max: int,
     rcond: float | None = None,
     ignore_warnings: bool = True,
@@ -116,13 +115,13 @@ def stable_topk(
     """Takes up to k_max indices of the top k_max values of vec. If the values are below rcond, they are discarded.
 
     Args:
-        vec (np.ndarray): Vector to extract the top k indices from.
+        vec (ndarray): Vector to extract the top k indices from.
         k_max (int): Number of indices to extract.
         rcond (float, optional): Value below which the values are discarded. Defaults to None, in which case it is set according to the machine precision of vec's dtype.
         ignore_warnings (bool): If False, raise a warning when some elements are discarted for being below the requested numerical precision.
 
     Returns:
-        tuple[np.ndarray, np.ndarray]: top values and their indices.
+        tuple[ndarray, ndarray]: top values and their indices.
     """
     if rcond is None:
         rcond = 10.0 * vec.shape[0] * np.finfo(vec.dtype).eps
@@ -144,7 +143,7 @@ def stable_topk(
         return top_vec[valid], top_idxs[valid]
 
 
-def weighted_norm(A: np.ndarray, M: np.ndarray | None = None):
+def weighted_norm(A: ndarray, M: ndarray | None = None):
     r"""Weighted norm of the columns of A.
 
     Args:

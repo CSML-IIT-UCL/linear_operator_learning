@@ -5,6 +5,7 @@ from typing import Literal
 from warnings import warn
 
 import numpy as np
+from numpy import ndarray
 from scipy.linalg import cho_factor, cho_solve, eig, eigh, lstsq, qr
 from scipy.sparse.linalg import eigs, eigsh
 
@@ -24,18 +25,18 @@ __all__ = [
 def predict(
     num_steps: int,
     fit_result: FitResult,
-    kernel_YX: np.ndarray,
-    kernel_Xin_X: np.ndarray,
-    obs_train_Y: np.ndarray,
-) -> np.ndarray:
+    kernel_YX: ndarray,
+    kernel_Xin_X: ndarray,
+    obs_train_Y: ndarray,
+) -> ndarray:
     """Predicts future states using kernel matrices and fitted results.
 
     Args:
         num_steps (int): Number of steps to predict forward (returns the last prediction)
         fit_result (FitResult): FitResult object containing fitted U and V matrices
-        kernel_YX (np.ndarray): Kernel matrix between output data and input data (or inducing points for Nystroem)
-        kernel_Xin_X (np.ndarray): Kernel matrix between initial conditions and input data (or inducing points for Nystroem)
-        obs_train_Y (np.ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
+        kernel_YX (ndarray): Kernel matrix between output data and input data (or inducing points for Nystroem)
+        kernel_Xin_X (ndarray): Kernel matrix between initial conditions and input data (or inducing points for Nystroem)
+        obs_train_Y (ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
 
     Shape:
         ``kernel_YX``: :math:`(N, N)`, where :math:`N` is the number of training data, or inducing points for Nystroem.
@@ -59,7 +60,7 @@ def predict(
 
 
 def pcr(
-    kernel_X: np.ndarray,
+    kernel_X: ndarray,
     tikhonov_reg: float = 0.0,
     rank: int | None = None,
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
@@ -67,7 +68,7 @@ def pcr(
     """Fits the Principal Components estimator.
 
     Args:
-        kernel_X (np.ndarray): Kernel matrix of the input data.
+        kernel_X (ndarray): Kernel matrix of the input data.
         tikhonov_reg (float, optional): Tikhonov (ridge) regularization parameter. Defaults to 0.0.
         rank (int | None, optional): Rank of the estimator. Defaults to None.
         svd_solver (Literal[ &quot;arnoldi&quot;, &quot;full&quot; ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
@@ -95,10 +96,10 @@ def pcr(
 
 
 def nystroem_pcr(
-    kernel_X: np.ndarray,  # Kernel matrix of the input inducing points
-    kernel_Y: np.ndarray,  # Kernel matrix of the output inducing points
-    kernel_Xnys: np.ndarray,  # Kernel matrix between the input data and the input inducing points
-    kernel_Ynys: np.ndarray,  # Kernel matrix between the output data and the output inducing points
+    kernel_X: ndarray,  # Kernel matrix of the input inducing points
+    kernel_Y: ndarray,  # Kernel matrix of the output inducing points
+    kernel_Xnys: ndarray,  # Kernel matrix between the input data and the input inducing points
+    kernel_Ynys: ndarray,  # Kernel matrix between the output data and the output inducing points
     tikhonov_reg: float = 0.0,  # Tikhonov (ridge) regularization parameter (can be 0)
     rank: int | None = None,  # Rank of the estimator
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
@@ -106,10 +107,10 @@ def nystroem_pcr(
     """Fits the Principal Components estimator using the Nyström method from :footcite:t:`Meanti2023`.
 
     Args:
-        kernel_X (np.ndarray): Kernel matrix of the input inducing points.
-        kernel_Y (np.ndarray): Kernel matrix of the output inducing points.
-        kernel_Xnys (np.ndarray): Kernel matrix between the input data and the input inducing points.
-        kernel_Ynys (np.ndarray): Kernel matrix between the output data and the output inducing points.
+        kernel_X (ndarray): Kernel matrix of the input inducing points.
+        kernel_Y (ndarray): Kernel matrix of the output inducing points.
+        kernel_Xnys (ndarray): Kernel matrix between the input data and the input inducing points.
+        kernel_Ynys (ndarray): Kernel matrix between the output data and the output inducing points.
         tikhonov_reg (float, optional): Tikhonov (ridge) regularization parameter. Defaults to 0.0.
         rank (int | None, optional): Rank of the estimator. Defaults to None.
         svd_solver (Literal[ "arnoldi", "full" ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
@@ -160,8 +161,8 @@ def nystroem_pcr(
 
 
 def reduced_rank(
-    kernel_X: np.ndarray,  # Kernel matrix of the input data
-    kernel_Y: np.ndarray,  # Kernel matrix of the output data
+    kernel_X: ndarray,  # Kernel matrix of the input data
+    kernel_Y: ndarray,  # Kernel matrix of the output data
     tikhonov_reg: float,  # Tikhonov (ridge) regularization parameter, can be 0
     rank: int,  # Rank of the estimator
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
@@ -169,8 +170,8 @@ def reduced_rank(
     """Fits the Reduced Rank estimator from :footcite:t:`Kostic2022`.
 
     Args:
-        kernel_X (np.ndarray): Kernel matrix of the input data.
-        kernel_Y (np.ndarray): Kernel matrix of the output data.
+        kernel_X (ndarray): Kernel matrix of the input data.
+        kernel_Y (ndarray): Kernel matrix of the output data.
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter.
         rank (int): Rank of the estimator.
         svd_solver (Literal[ "arnoldi", "full" ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
@@ -229,10 +230,10 @@ def reduced_rank(
 
 
 def nystroem_reduced_rank(
-    kernel_X: np.ndarray,  # Kernel matrix of the input inducing points
-    kernel_Y: np.ndarray,  # Kernel matrix of the output inducing points
-    kernel_Xnys: np.ndarray,  # Kernel matrix between the input data and the input inducing points
-    kernel_Ynys: np.ndarray,  # Kernel matrix between the output data and the output inducing points
+    kernel_X: ndarray,  # Kernel matrix of the input inducing points
+    kernel_Y: ndarray,  # Kernel matrix of the output inducing points
+    kernel_Xnys: ndarray,  # Kernel matrix between the input data and the input inducing points
+    kernel_Ynys: ndarray,  # Kernel matrix between the output data and the output inducing points
     tikhonov_reg: float,  # Tikhonov (ridge) regularization parameter
     rank: int,  # Rank of the estimator
     svd_solver: Literal["arnoldi", "full"] = "arnoldi",
@@ -240,10 +241,10 @@ def nystroem_reduced_rank(
     """Fits the Nyström Reduced Rank estimator from :footcite:t:`Meanti2023`.
 
     Args:
-        kernel_X (np.ndarray): Kernel matrix of the input inducing points.
-        kernel_Y (np.ndarray): Kernel matrix of the output inducing points.
-        kernel_Xnys (np.ndarray): Kernel matrix between the input data and the input inducing points.
-        kernel_Ynys (np.ndarray): Kernel matrix between the output data and the output inducing points.
+        kernel_X (ndarray): Kernel matrix of the input inducing points.
+        kernel_Y (ndarray): Kernel matrix of the output inducing points.
+        kernel_Xnys (ndarray): Kernel matrix between the input data and the input inducing points.
+        kernel_Ynys (ndarray): Kernel matrix between the output data and the output inducing points.
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter.
         rank (int): Rank of the estimator.
         svd_solver (Literal[ "arnoldi", "full" ], optional): Solver for the generalized eigenvalue problem. Defaults to "arnoldi".
@@ -309,8 +310,8 @@ def nystroem_reduced_rank(
 
 
 def rand_reduced_rank(
-    kernel_X: np.ndarray,
-    kernel_Y: np.ndarray,
+    kernel_X: ndarray,
+    kernel_Y: ndarray,
     tikhonov_reg: float,
     rank: int,
     n_oversamples: int = 5,
@@ -322,8 +323,8 @@ def rand_reduced_rank(
     """Fits the Randomized Reduced Rank Estimator from :footcite:t:`Turri2023`.
 
     Args:
-        kernel_X (np.ndarray): Kernel matrix of the input data
-        kernel_Y (np.ndarray): Kernel matrix of the output data
+        kernel_X (ndarray): Kernel matrix of the input data
+        kernel_Y (ndarray): Kernel matrix of the output data
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter
         rank (int): Rank of the estimator
         n_oversamples (int, optional): Number of Oversamples. Defaults to 5.

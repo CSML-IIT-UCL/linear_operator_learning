@@ -3,14 +3,15 @@
 from math import sqrt
 
 import numpy as np
+from numpy import ndarray
 from scipy.spatial.distance import pdist
 
 
-def topk(vec: np.ndarray, k: int):
+def topk(vec: ndarray, k: int):
     """Get the top k values from a Numpy array.
 
     Args:
-        vec (np.ndarray): A 1D numpy array
+        vec (ndarray): A 1D numpy array
         k (int): Number of elements to keep
 
     Returns:
@@ -24,11 +25,11 @@ def topk(vec: np.ndarray, k: int):
     return values, indices
 
 
-def sanitize_complex_conjugates(vec: np.ndarray, tol: float = 10.0):
+def sanitize_complex_conjugates(vec: ndarray, tol: float = 10.0):
     """On 1D complex vector, if the real parts of two elements are close, set them equal. Set to 0 the imaginary parts smaller than `tol` times the machine precision.
 
     Args:
-        vec (np.ndarray): A 1D vector to sanitize.
+        vec (ndarray): A 1D vector to sanitize.
         tol (float, optional): Tolerance for comparisons. Defaults to 10.0.
 
     """

@@ -1,1 +1,1 @@
-"""Entry point of `linear_operator_learning.init`."""
+"""Neural network methods entry point."""
