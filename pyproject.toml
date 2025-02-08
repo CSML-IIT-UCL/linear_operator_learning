@@ -1,6 +1,6 @@
 [project]
 name = "linear-operator-learning"
-version = "0.1.0"
+version = "0.1.7"
 description = "A package to learn linear operators"
 readme = "README.md"
 authors = [
@@ -20,6 +20,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "bumpver>=2024.1130",
     "pre-commit>=4.1.0",
     "pytest>=8.3.4",
     "ruff>=0.9.4",
@@ -57,3 +58,12 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[bumpver]
+current_version = "0.1.7"
+version_pattern = "MAJOR.MINOR.PATCH"
+
+[bumpver.file_patterns]
+"pyproject.toml" = [
+    'version = "{version}"'
+]

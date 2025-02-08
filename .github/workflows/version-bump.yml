@@ -1,0 +1,51 @@
+name: Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+# References:
+# https://docs.astral.sh/uv/guides/integration/github/
+# https://stackoverflow.com/a/58393457/10344434
+# https://github.com/mbarkhau/bumpver?tab=readme-ov-file#reference
+jobs:
+  bump-version:
+    name: Bump package version
+    if: "!contains(github.event.head_commit.message, 'Bump version')"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Bump version
+        run: uv run bumpver update --patch
+
+      - name: Bump uv lock
+        run: uv lock --upgrade-package linear-operator-learning
+
+      - name: Commit
+        run: |
+          git config --global user.name 'Alek Frohlich'
+          git config --global user.email 'alekfrohlich@users.noreply.github.com'
+          git commit -am "Bump version"
+          git push
+
+      - name: Build and Publish to PyPI
+        run: |
+          uv build
+          uv publish --trusted-publishing always
