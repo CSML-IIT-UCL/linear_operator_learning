@@ -12,8 +12,8 @@ def vamp_loss(
     """Variational Approach for learning Markov Processes (VAMP) score by :footcite:t:`Wu2019`.
 
     Args:
-        X (Tensor): Covariates for the initial time steps.
-        Y (Tensor): Covariates for the evolved time steps.
+        X (Tensor): Features for the initial time steps.
+        Y (Tensor): Features for the evolved time steps.
         schatten_norm (int, optional): Computes the VAMP-p score with ``p = schatten_norm``. Defaults to 2.
         center_covariances (bool, optional): Use centered covariances to compute the VAMP score. Defaults to True.
 
@@ -60,8 +60,8 @@ def dp_loss(
     """Deep Projection Loss by :footcite:t:`Kostic2023DPNets`.
 
     Args:
-        X (Tensor): Covariates for the initial time steps.
-        Y (Tensor): Covariates for the evolved time steps.
+        X (Tensor): Features for the initial time steps.
+        Y (Tensor): Features for the evolved time steps.
         relaxed (bool, optional): Whether to use the relaxed (more numerically stable) or the full deep-projection loss. Defaults to True.
         metric_deformation (float, optional): Strength of the metric metric deformation loss: Defaults to 1.0.
         center_covariances (bool, optional): Use centered covariances to compute the Deep Projection score. Defaults to True.
