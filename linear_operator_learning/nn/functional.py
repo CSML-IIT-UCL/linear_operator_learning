@@ -64,7 +64,7 @@ def dp_loss(
         Y (Tensor): Features for the evolved time steps.
         relaxed (bool, optional): Whether to use the relaxed (more numerically stable) or the full deep-projection loss. Defaults to True.
         metric_deformation (float, optional): Strength of the metric metric deformation loss: Defaults to 1.0.
-        center_covariances (bool, optional): Use centered covariances to compute the Deep Projection score. Defaults to True.
+        center_covariances (bool, optional): Use centered covariances to compute the Deep Projection loss. Defaults to True.
 
     Shape:
         ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
@@ -115,7 +115,7 @@ def l2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
     return off_diag - diag
 
 
-def kl_contrastive_score(X: Tensor, Y: Tensor) -> Tensor:
+def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
     """NCP/Contrastive/Mutual Information Loss based on the KL divergence.
 
     Args:
