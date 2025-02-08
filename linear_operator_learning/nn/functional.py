@@ -89,7 +89,7 @@ def dp_loss(
     return -S + 0.5 * metric_deformation * (R_X + R_Y)
 
 
-def L2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
+def l2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
     """NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error by :footcite:t:`Kostic2024NCP`.
 
     Args:
@@ -115,7 +115,7 @@ def L2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
     return off_diag - diag
 
 
-def KL_contrastive_score(X: Tensor, Y: Tensor) -> Tensor:
+def kl_contrastive_score(X: Tensor, Y: Tensor) -> Tensor:
     """NCP/Contrastive/Mutual Information Loss based on the KL divergence.
 
     Args:
