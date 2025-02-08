@@ -9,7 +9,11 @@ from linear_operator_learning.nn.linalg import covariance, sqrtmh
 def vamp_loss(
     X: Tensor, Y: Tensor, schatten_norm: int = 2, center_covariances: bool = True
 ) -> Tensor:
-    """Variational Approach for learning Markov Processes (VAMP) score by :footcite:t:`Wu2019`.
+    r"""Variational Approach for learning Markov Processes (VAMP) score by :footcite:t:`Wu2019`.
+
+    .. math::
+
+        -\sum_{i} \sigma_{i}(A)^{p} \qquad \text{where}~A = \big(X^{\top}X\big)^{\dagger/2}X^{\top}Y\big(Y^{\top}Y\big)^{\dagger/2}.
 
     Args:
         X (Tensor): Features for the initial time steps.
@@ -57,7 +61,12 @@ def dp_loss(
     metric_deformation: float = 1.0,
     center_covariances: bool = True,
 ) -> Tensor:
-    """Deep Projection Loss by :footcite:t:`Kostic2023DPNets`.
+    r"""Deep Projection Loss by :footcite:t:`Kostic2023DPNets`.
+
+    .. math::
+
+
+        -\frac{\|X^{\top}Y\|^{2}_{{\rm F}}}{\|X^{\top}X\|^{2}\|Y^{\top}Y\|^{2}}.
 
     Args:
         X (Tensor): Features for the initial time steps.
@@ -90,7 +99,11 @@ def dp_loss(
 
 
 def l2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
-    """NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error by :footcite:t:`Kostic2024NCP`.
+    r"""NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error by :footcite:t:`Kostic2024NCP`.
+
+    .. math::
+
+        \frac{1}{N(N-1)}\sum_{i \neq j}\langle Y_{i}, X_{j} \rangle^2 - \frac{2}{N}\sum_{i=1}\langle Y_{i}, X_{i} \rangle.
 
     Args:
         X (Tensor): Input features.
@@ -116,7 +129,11 @@ def l2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
 
 
 def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
-    """NCP/Contrastive/Mutual Information Loss based on the KL divergence.
+    r"""NCP/Contrastive/Mutual Information Loss based on the KL divergence.
+
+    .. math::
+
+        \frac{1}{N(N-1)}\sum_{i \neq j}\langle Y_{i}, X_{j} \rangle - \frac{2}{N}\sum_{i=1}\log\big(\langle Y_{i}, X_{i} \rangle\big).
 
     Args:
         X (Tensor): Input features.
@@ -131,7 +148,7 @@ def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
     assert X.ndim == 2
 
     npts, dim = X.shape
-    log_term = torch.log(torch.mean(X * Y) * dim)
+    log_term = torch.mean(torch.log(X * Y)) * dim
     linear_term = torch.matmul(X, Y.T)
     off_diag = (
         torch.mean(torch.triu(linear_term, diagonal=1) + torch.tril(linear_term, diagonal=-1))
