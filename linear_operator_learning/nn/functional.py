@@ -1,16 +1,19 @@
-"""Representation learning losses and utility functions."""
+"""Functional interface."""
 
 import torch
+from torch import Tensor
 
 from linear_operator_learning.nn.linalg import covariance, sqrtmh
 
 
-def vamp_loss(X, Y, schatten_norm: int = 2, center_covariances: bool = True):
+def vamp_loss(
+    X: Tensor, Y: Tensor, schatten_norm: int = 2, center_covariances: bool = True
+) -> Tensor:
     """Variational Approach for learning Markov Processes (VAMP) score by :footcite:t:`Wu2019`.
 
     Args:
-        X (torch.Tensor): Covariates for the initial time steps.
-        Y (torch.Tensor): Covariates for the evolved time steps.
+        X (Tensor): Covariates for the initial time steps.
+        Y (Tensor): Covariates for the evolved time steps.
         schatten_norm (int, optional): Computes the VAMP-p score with ``p = schatten_norm``. Defaults to 2.
         center_covariances (bool, optional): Use centered covariances to compute the VAMP score. Defaults to True.
 
@@ -21,11 +24,6 @@ def vamp_loss(X, Y, schatten_norm: int = 2, center_covariances: bool = True):
         ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
 
         ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
-
-    Returns:
-        torch.Tensor: VAMP score
-
-
     """
     cov_X, cov_Y, cov_XY = (
         covariance(X, center=center_covariances),
@@ -53,17 +51,17 @@ def vamp_loss(X, Y, schatten_norm: int = 2, center_covariances: bool = True):
 
 
 def dp_loss(
-    X: torch.Tensor,
-    Y: torch.Tensor,
+    X: Tensor,
+    Y: Tensor,
     relaxed: bool = True,
     metric_deformation: float = 1.0,
     center_covariances: bool = True,
-):
+) -> Tensor:
     """Deep Projection Loss by :footcite:t:`Kostic2023DPNets`.
 
     Args:
-        X (torch.Tensor): Covariates for the initial time steps.
-        Y (torch.Tensor): Covariates for the evolved time steps.
+        X (Tensor): Covariates for the initial time steps.
+        Y (Tensor): Covariates for the evolved time steps.
         relaxed (bool, optional): Whether to use the relaxed (more numerically stable) or the full deep-projection loss. Defaults to True.
         metric_deformation (float, optional): Strength of the metric metric deformation loss: Defaults to 1.0.
         center_covariances (bool, optional): Use centered covariances to compute the Deep Projection score. Defaults to True.
@@ -72,9 +70,6 @@ def dp_loss(
         ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
 
         ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
-
-    Returns:
-        torch.Tensor: Deep Projection score
     """
     cov_X, cov_Y, cov_XY = (
         covariance(X, center=center_covariances),
@@ -94,18 +89,17 @@ def dp_loss(
     return -S + 0.5 * metric_deformation * (R_X + R_Y)
 
 
-def L2_contrastive_loss(X: torch.Tensor, Y: torch.Tensor):
-    """NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error.
+def L2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
+    """NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error by :footcite:t:`Kostic2024NCP`.
 
     Args:
-        X (torch.Tensor): Input features
-        Y (torch.Tensor): Output features
+        X (Tensor): Input features.
+        Y (Tensor): Output features.
 
     Shape:
         ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
 
         ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
-
     """
     assert X.shape == Y.shape
     assert X.ndim == 2
@@ -121,18 +115,17 @@ def L2_contrastive_loss(X: torch.Tensor, Y: torch.Tensor):
     return off_diag - diag
 
 
-def KL_contrastive_score(X: torch.Tensor, Y: torch.Tensor):
+def KL_contrastive_score(X: Tensor, Y: Tensor) -> Tensor:
     """NCP/Contrastive/Mutual Information Loss based on the KL divergence.
 
     Args:
-        X (torch.Tensor): Input features
-        Y (torch.Tensor): Output features
+        X (Tensor): Input features.
+        Y (Tensor): Output features.
 
     Shape:
         ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
 
         ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
-
     """
     assert X.shape == Y.shape
     assert X.ndim == 2
@@ -148,17 +141,16 @@ def KL_contrastive_score(X: torch.Tensor, Y: torch.Tensor):
     return off_diag - log_term
 
 
-def logfro_loss(cov: torch.Tensor):
-    r"""Logarithmic + Frobenious (metric deformation) loss as used in :footcite:t:`Kostic2023DPNets`, defined as :math:`\text{Tr}(C^{2} - C -\ln(C))` .
+def logfro_loss(cov: Tensor) -> Tensor:
+    r"""Logarithmic + Frobenious (metric deformation) loss as used in :footcite:t:`Kostic2023DPNets`.
+
+    Defined as :math:`\text{Tr}(C^{2} - C -\ln(C))`.
 
     Args:
-        cov (torch.tensor): A symmetric positive-definite matrix.
+        cov (Tensor): A symmetric positive-definite matrix.
 
     Shape:
         ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
-
-    Returns:
-        torch.tensor: Loss function
     """
     eps = torch.finfo(cov.dtype).eps * cov.shape[0]
     vals_x = torch.linalg.eigvalsh(cov)
