@@ -17,3 +17,4 @@ A package to Learn Linear Operators
    :hidden:
 
    reference/kernel
+   reference/nn
