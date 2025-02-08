@@ -3,11 +3,22 @@
 from math import sqrt
 
 import torch
+from torch import Tensor
 
 
-def sqrtmh(A: torch.Tensor):
-    # Credits to
-    """Compute the square root of a Symmetric or Hermitian positive definite matrix or batch of matrices. Credits to  `https://github.com/pytorch/pytorch/issues/25481#issuecomment-1032789228 <https://github.com/pytorch/pytorch/issues/25481#issuecomment-1032789228>`_."""
+def sqrtmh(A: Tensor) -> Tensor:
+    """Compute the square root of a Symmetric or Hermitian positive definite matrix or batch of matrices.
+
+    Credits to: <https://github.com/pytorch/pytorch/issues/25481#issuecomment-1032789228>.
+
+    Args:
+        A (Tensor): Symmetric or Hermitian positive definite matrix or batch of matrices.
+
+    Shape:
+        ``A``: #TODO: ADD SHAPE
+
+        Output: #TODO: ADD SHAPE
+    """
     L, Q = torch.linalg.eigh(A)
     zero = torch.zeros((), device=L.device, dtype=L.dtype)
     threshold = L.max(-1).values * L.size(-1) * torch.finfo(L.dtype).eps
@@ -16,21 +27,25 @@ def sqrtmh(A: torch.Tensor):
 
 
 def covariance(
-    X: torch.Tensor,
-    Y: torch.Tensor | None = None,
+    X: Tensor,
+    Y: Tensor | None = None,
     center: bool = True,
     norm: float | None = None,
-):
-    """Covariance matrix.
+) -> Tensor:
+    """Computes the covariance of X or cross-covariance between X and Y if Y is given.
 
     Args:
-        X (torch.Tensor): Input covariates of shape ``(samples, features)``.
-        Y (torch.Tensor | None, optional): Output covariates of shape ``(samples, features)`` Defaults to None.
+        X (Tensor): Input features.
+        Y (Tensor | None, optional): Output features. Defaults to None.
         center (bool, optional): Whether to compute centered covariances. Defaults to True.
         norm (float | None, optional): Normalization factor. Defaults to None.
 
-    Returns:
-        torch.Tensor: Covariance matrix of shape ``(features, features)``. If ``Y is not None`` computes the cross-covariance between X and Y.
+    Shape:
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+
+        Output: :math:`(D, D)`, where :math:`D` is the number of features.
     """
     assert X.ndim == 2
     if norm is None:
