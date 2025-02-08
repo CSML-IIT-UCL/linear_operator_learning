@@ -21,9 +21,9 @@ def vamp_loss(
         NotImplementedError: If ``schatten_norm`` is not 1 or 2.
 
     Shape:
-        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
 
-        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
     cov_X, cov_Y, cov_XY = (
         covariance(X, center=center_covariances),
@@ -67,9 +67,9 @@ def dp_loss(
         center_covariances (bool, optional): Use centered covariances to compute the Deep Projection score. Defaults to True.
 
     Shape:
-        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
 
-        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
     cov_X, cov_Y, cov_XY = (
         covariance(X, center=center_covariances),
@@ -97,9 +97,9 @@ def L2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
         Y (Tensor): Output features.
 
     Shape:
-        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
 
-        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
     assert X.shape == Y.shape
     assert X.ndim == 2
@@ -123,9 +123,9 @@ def KL_contrastive_score(X: Tensor, Y: Tensor) -> Tensor:
         Y (Tensor): Output features.
 
     Shape:
-        ``X``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
 
-        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size, and :math:`D` is the number of features.
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
     assert X.shape == Y.shape
     assert X.ndim == 2
@@ -142,7 +142,7 @@ def KL_contrastive_score(X: Tensor, Y: Tensor) -> Tensor:
 
 
 def logfro_loss(cov: Tensor) -> Tensor:
-    r"""Logarithmic + Frobenious (metric deformation) loss as used in :footcite:t:`Kostic2023DPNets`.
+    r"""Logarithmic + Frobenious (metric deformation) loss by :footcite:t:`Kostic2023DPNets`.
 
     Defined as :math:`\text{Tr}(C^{2} - C -\ln(C))`.
 
