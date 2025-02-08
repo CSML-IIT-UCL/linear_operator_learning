@@ -35,6 +35,11 @@ docs = [
     "sphinxcontrib-bibtex>=2.6.3",
     "sphinxcontrib-jsmath==1.0.1",
 ]
+examples = [
+    "ipykernel>=6.29.5",
+    "lightning>=2.5.0.post0",
+    "seaborn>=0.13.2",
+]
 
 [tool.ruff]
 line-length = 100
