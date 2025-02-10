@@ -1,4 +1,6 @@
-# Linear Operator Learning
+<p align = "left">
+  <img src="logo.svg" alt="SVG Image" style="width:50%;"/>
+</p>
 
 ## Install
 

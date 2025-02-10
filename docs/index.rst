@@ -1,8 +1,9 @@
-Linear Operator Learning documentation
-======================================
+.. image:: _static/logo.svg
+   :alt: Logo
+   :width: 300px
+   :align: center
 
-A package to Learn Linear Operators
-
+A package to learn linear operators, developed by the `Computational Statistics & Machine Learning lab <https://csml.iit.it/home>`_ at the Italian Institute of Technology.
 
 .. toctree::
    :maxdepth: 2

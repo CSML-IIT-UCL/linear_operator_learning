@@ -2,6 +2,7 @@
 ===============
 Neural Networks
 ===============
+
 .. module:: linear_operator_learning.nn
 
 Functional
@@ -10,9 +11,9 @@ Functional
 Loss Functions
 ~~~~~~~~~~~~~~
 
-.. autofunction:: linear_operator_learning.nn.functional.L2_contrastive_loss
+.. autofunction:: linear_operator_learning.nn.functional.l2_contrastive_loss
 
-.. autofunction:: linear_operator_learning.nn.functional.KL_contrastive_score
+.. autofunction:: linear_operator_learning.nn.functional.kl_contrastive_loss
 
 .. autofunction:: linear_operator_learning.nn.functional.vamp_loss
 
