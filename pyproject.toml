@@ -38,6 +38,9 @@ docs = [
 examples = [
     "ipykernel>=6.29.5",
     "lightning>=2.5.0.post0",
+    "loguru>=0.7.3",
+    "matplotlib>=3.10.0",
+    "scikit-learn>=1.6.1",
     "seaborn>=0.13.2",
 ]
 
