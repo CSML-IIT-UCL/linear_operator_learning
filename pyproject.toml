@@ -60,6 +60,7 @@ select = [
 
 ignore = [
     "F401", # Don't remove unused imports
+    "D107", # Document __init__ arguments inside class docstring
 ]
 
 

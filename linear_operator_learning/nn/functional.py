@@ -5,6 +5,8 @@ from torch import Tensor
 
 from linear_operator_learning.nn.linalg import covariance, sqrtmh
 
+# Losses_____________________________________________________________________________________________
+
 
 def vamp_loss(
     X: Tensor, Y: Tensor, schatten_norm: int = 2, center_covariances: bool = True
@@ -174,3 +176,24 @@ def logfro_loss(cov: Tensor) -> Tensor:
     vals_x = torch.where(vals_x > eps, vals_x, eps)
     loss = torch.mean(-torch.log(vals_x) + vals_x * (vals_x - 1.0))
     return loss
+
+
+# Regularizers______________________________________________________________________________________
+def orthm_regularization(x: Tensor, y: Tensor) -> Tensor:
+    r"""Orthonormality regularization from :footcite:t:`Kostic2024NCP`.
+
+    .. math::
+
+        # TODO: Add formula
+
+    Args:
+        x (Tensor): Input features.
+        y (Tensor): Output features.
+
+    Shape:
+        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+
+        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+    """
+    # TODO: Implement the regularizer.
+    return 0
