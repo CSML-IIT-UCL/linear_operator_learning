@@ -179,7 +179,7 @@ def logfro_loss(cov: Tensor) -> Tensor:
 
 
 # Regularizers______________________________________________________________________________________
-def orthm_regularization(x: Tensor, y: Tensor) -> Tensor:
+def orthonormality_regularization(x: Tensor, y: Tensor) -> Tensor:
     r"""Orthonormality regularization from :footcite:t:`Kostic2024NCP`.
 
     .. math::
