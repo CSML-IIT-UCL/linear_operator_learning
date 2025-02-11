@@ -6,7 +6,7 @@ from torch.nn import Module
 
 from linear_operator_learning.nn import functional as F
 
-__all__ = ["L2ContrastiveLoss"]
+__all__ = ["VampLoss", "L2ContrastiveLoss", "KLContrastiveLoss"]
 
 
 class VampLoss(Module):
@@ -40,15 +40,35 @@ class VampLoss(Module):
 
             ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
+        return F.vamp_loss(x, y, self.schatten_norm, self.center_covariances)
 
 
 class L2ContrastiveLoss(Module):
-    """L2 Contrastive Loss. See `F.l2_contrastive_loss` for details."""
+    r"""NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error by :footcite:t:`Kostic2024NCP`.
+
+    .. math::
+
+        \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle^2 - \frac{2}{N}\sum_{i=1}\langle x_{i}, y_{i} \rangle.
+    """
 
     def __init__(self) -> None:
         super().__init__()
 
-    def __call__(self, x: Tensor, y: Tensor) -> Tensor:  # noqa: D102
+    def forward(self, x: Tensor, y: Tensor) -> Tensor:  # noqa: D102
+        """Forward pass of the L2 contrastive loss.
+
+        Args:
+            x (Tensor): Input features.
+            y (Tensor): Output features.
+
+        Returns:
+            Tensor: Loss value.
+
+        Shape:
+            ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+
+            ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+        """
         return F.l2_contrastive_loss(x, y)
 
 
@@ -92,6 +112,35 @@ class DPLoss(Module):
         return F.dp_loss(x, y, self.relaxed, self.metric_deformation, self.center_covariances)
 
 
+class KLContrastiveLoss(Module):
+    r"""NCP/Contrastive/Mutual Information Loss based on the KL divergence.
+
+    .. math::
+
+        \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle - \frac{2}{N}\sum_{i=1}\log\big(\langle x_{i}, y_{i} \rangle\big).
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, x: Tensor, y: Tensor) -> Tensor:  # noqa: D102
+        """Forward pass of the KL contrastive loss.
+
+        Args:
+            x (Tensor): Input features.
+            y (Tensor): Output features.
+
+        Returns:
+            Tensor: Loss value.
+
+        Shape:
+            ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+
+            ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+        """
+        return F.kl_contrastive_loss(x, y)
+
+
 class LogFroLoss(Module):
     r"""Logarithmic + Frobenious (metric deformation) loss by :footcite:t:`Kostic2023DPNets`.
 
@@ -110,4 +159,4 @@ class LogFroLoss(Module):
         Shape:
             ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
         """
-        F.logfro_loss(cov)
+        return F.logfro_loss(cov)

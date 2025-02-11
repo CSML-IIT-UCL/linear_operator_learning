@@ -1,14 +1,20 @@
 .. _kernel_reference:
 ==============
-Kernel Methods
+:code:`kernel`
 ==============
 .. module:: linear_operator_learning.kernel
 
-Base Functions
---------------
+Table of Contents
+-----------------
 
-Basic Functions
-~~~~~~~~~~~~~~~
+- :ref:`Inference <kernel_inference_fns>`
+- :ref:`Types <kernel_types>`
+- :ref:`Linear Algebra <kernel_linalg>`
+- :ref:`Regressors <kernel_regressors>`
+
+.. _kernel_inference_fns:
+Inference
+~~~~~~~~~
 
 .. autofunction:: linear_operator_learning.kernel.predict
 
@@ -16,6 +22,7 @@ Basic Functions
 
 .. autofunction:: linear_operator_learning.kernel.evaluate_eigenfunction
 
+.. _kernel_types:
 Types
 ~~~~~
 
@@ -25,7 +32,7 @@ Types
 .. autoclass:: linear_operator_learning.kernel.structs.EigResult
     :members:
 
-.. _linalg:
+.. _kernel_linalg:
 Linear Algebra Utilities
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -35,7 +42,7 @@ Linear Algebra Utilities
 
 .. autofunction:: linear_operator_learning.kernel.linalg.add_diagonal_
 
-
+.. _kernel_regressors:
 Regressors
 ----------
 .. _rrr:

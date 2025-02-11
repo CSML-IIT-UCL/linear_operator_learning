@@ -63,28 +63,14 @@ def dp_loss(
     return -S + 0.5 * metric_deformation * (R_x + R_y)
 
 
-def l2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
-    r"""NCP/Contrastive/Mutual Information Loss based on the :math:`L^{2}` error by :footcite:t:`Kostic2024NCP`.
+def l2_contrastive_loss(x: Tensor, y: Tensor) -> Tensor:
+    """See :class:`linear_operator_learning.nn.L2ContrastiveLoss` for details."""
+    assert x.shape == y.shape
+    assert x.ndim == 2
 
-    .. math::
-
-        \frac{1}{N(N-1)}\sum_{i \neq j}\langle Y_{i}, X_{j} \rangle^2 - \frac{2}{N}\sum_{i=1}\langle Y_{i}, X_{i} \rangle.
-
-    Args:
-        X (Tensor): Input features.
-        Y (Tensor): Output features.
-
-    Shape:
-        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
-
-        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
-    """
-    assert X.shape == Y.shape
-    assert X.ndim == 2
-
-    npts, dim = X.shape
-    diag = 2 * torch.mean(X * Y) * dim
-    square_term = torch.matmul(X, Y.T) ** 2
+    npts, dim = x.shape
+    diag = 2 * torch.mean(x * y) * dim
+    square_term = torch.matmul(x, y.T) ** 2
     off_diag = (
         torch.mean(torch.triu(square_term, diagonal=1) + torch.tril(square_term, diagonal=-1))
         * npts
@@ -94,21 +80,7 @@ def l2_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
 
 
 def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
-    r"""NCP/Contrastive/Mutual Information Loss based on the KL divergence.
-
-    .. math::
-
-        \frac{1}{N(N-1)}\sum_{i \neq j}\langle Y_{i}, X_{j} \rangle - \frac{2}{N}\sum_{i=1}\log\big(\langle Y_{i}, X_{i} \rangle\big).
-
-    Args:
-        X (Tensor): Input features.
-        Y (Tensor): Output features.
-
-    Shape:
-        ``X``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
-
-        ``Y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
-    """
+    """See :class:`linear_operator_learning.nn.KLContrastiveLoss` for details."""
     assert X.shape == Y.shape
     assert X.ndim == 2
 

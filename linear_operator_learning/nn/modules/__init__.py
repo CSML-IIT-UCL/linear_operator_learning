@@ -1,6 +1,6 @@
 """Modules entry point."""
 
-from .loss import L2ContrastiveLoss
+from .loss import KLContrastiveLoss, L2ContrastiveLoss
 from .mlp import MLP
 
-__all__ = ["L2ContrastiveLoss", "MLP"]
+__all__ = ["L2ContrastiveLoss", "KLContrastiveLoss", "MLP"]
