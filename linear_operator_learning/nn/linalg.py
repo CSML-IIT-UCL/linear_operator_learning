@@ -22,9 +22,9 @@ def sqrtmh(A: Tensor) -> Tensor:
         A (Tensor): Symmetric or Hermitian positive definite matrix or batch of matrices.
 
     Shape:
-        ``A``: #TODO: ADD SHAPE
+        ``A``: :math:`(N, N)`
 
-        Output: #TODO: ADD SHAPE
+        Output: :math:`(N, N)`
     """
     L, Q = torch.linalg.eigh(A)
     zero = torch.zeros((), device=L.device, dtype=L.dtype)
@@ -85,8 +85,6 @@ def eig(
         fit_result (FitResult): Fit result as defined in ``linear_operator_learning.nn.structs``.
         cov_XY (Tensor): Cross covariance matrix between the input and output data.
 
-    Returns:
-        EigResult: as defined in ``linear_operator_learning.nn.structs``
 
     Shape:
         ``cov_XY``: :math:`(D, D)`, where :math:`D` is the number of features.
@@ -142,8 +140,6 @@ def evaluate_eigenfunction(
         which: String indicating "left" or "right" eigenfunctions.
         X: Feature map of the input data
 
-    Returns:
-        Tensor: Evaluated eigenfunctions
 
     Shape:
         ``eig_results``: ``U, V`` of shape :math:`(D, R)`, ``svals`` of shape :math:`R`
@@ -158,7 +154,22 @@ def evaluate_eigenfunction(
 
 
 def whitening(u: Tensor, v: Tensor) -> tuple:
-    """TODO: Add docs."""
+    """Computes whitening matrices for ``u`` and ``v``.
+
+    Args:
+        u (Tensor): Input features.
+        v (Tensor): Output features.
+
+
+    Shape:
+        ``u``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+        ``v``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+        ``sqrt_cov_u_inv``: :math:`(D, D)`
+        ``sqrt_cov_v_inv``: :math:`(D, D)`
+        ``sing_val``: :math:`(D,)`
+        ``sing_vec_l``: :math:`(D, D)`
+        ``sing_vec_r``: :math:`(D, D)`
+    """
     cov_u = covariance(u)
     cov_v = covariance(v)
     cov_uv = covariance(u, v)

@@ -25,8 +25,6 @@ def eig(
         K_X (ndarray): Kernel matrix of the input data.
         K_YX (ndarray): Kernel matrix between the output data and the input data.
 
-    Returns:
-        EigResult: as defined in ``linear_operator_learning.kernel.structs``
 
     Shape:
         ``K_X``: :math:`(N, N)`, where :math:`N` is the sample size.
@@ -79,8 +77,6 @@ def evaluate_eigenfunction(
         K_Xin_X_or_Y: Kernel matrix between initial conditions and input data (for right
             eigenfunctions) or output data (for left eigenfunctions)
 
-    Returns:
-        ndarray: Evaluated eigenfunctions
 
     Shape:
         ``eig_result``: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
@@ -120,8 +116,6 @@ def stable_topk(
         rcond (float, optional): Value below which the values are discarded. Defaults to None, in which case it is set according to the machine precision of vec's dtype.
         ignore_warnings (bool): If False, raise a warning when some elements are discarted for being below the requested numerical precision.
 
-    Returns:
-        tuple[ndarray, ndarray]: top values and their indices.
     """
     if rcond is None:
         rcond = 10.0 * vec.shape[0] * np.finfo(vec.dtype).eps

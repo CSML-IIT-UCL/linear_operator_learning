@@ -1,7 +1,7 @@
 .. _nn:
-===============
+==========
 :code:`nn`
-===============
+==========
 
 .. module:: linear_operator_learning.nn
 
@@ -10,6 +10,7 @@ Table of Contents
 
 - :ref:`Loss Functions <nn_loss_fns>`
 - :ref:`Modules <nn_modules>`
+- :ref:`Regressors <nn_regressors>`
 
 .. _nn_loss_fns:
 Loss Functions
@@ -42,5 +43,15 @@ Modules
 .. autoclass:: linear_operator_learning.nn.MLP
     :members:
     :exclude-members: __init__, __new__, forward
+
+.. _nn_regressors:
+Regressors
+~~~~~~~~~~
+
+.. autofunction:: linear_operator_learning.nn.ridge_least_squares
+
+.. autofunction:: linear_operator_learning.nn.eig
+
+.. autofunction:: linear_operator_learning.nn.evaluate_eigenfunction
 
 .. footbibliography::

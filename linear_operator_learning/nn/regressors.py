@@ -15,8 +15,6 @@ def ridge_least_squares(
         cov_X (torch.Tensor): covariance matrix of the input data.
         tikhonov_reg (float, optional): Ridge regularization. Defaults to 0.0.
 
-    Returns:
-        FitResult: as defined in operator_learning.structs
     """
     dim = cov_X.shape[0]
     reg_input_covariance = cov_X + tikhonov_reg * torch.eye(

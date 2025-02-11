@@ -1,7 +1,7 @@
 .. _nn_functional:
-=============
+=====================
 :code:`nn.functional`
-=============
+=====================
 
 .. module:: linear_operator_learning.nn
 
