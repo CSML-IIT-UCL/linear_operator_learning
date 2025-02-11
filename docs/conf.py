@@ -23,6 +23,7 @@ extensions = [
     "sphinxawesome_theme",
     "myst_parser",
     "sphinxcontrib.bibtex",
+    "sphinx_design"
 ]
 
 myst_enable_extensions = ["amsmath", "dollarmath", "html_image"]
@@ -63,7 +64,7 @@ pygments_style_dark = "material"
 # Additional theme configuration
 html_title = "Linear Operator Learning"
 html_theme_options = {
-    "show_prev_next": True,
+    "show_prev_next": False,
     "show_scrolltop": True,
     "extra_header_link_icons": {
         "GitHub": {
@@ -77,3 +78,4 @@ html_theme_options = {
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
+html_logo = "_static/logo.svg"

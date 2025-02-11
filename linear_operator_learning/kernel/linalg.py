@@ -18,15 +18,13 @@ def eig(
     K_X: ndarray,  # Kernel matrix of the input data
     K_YX: ndarray,  # Kernel matrix between the output data and the input data
 ) -> EigResult:
-    """Computes the eigendecomposition of the transfer operator.
+    """Computes the eigendecomposition of a regressor.
 
     Args:
-        fit_result (FitResult): Fit result as defined in ``operator_learning.structs``.
+        fit_result (FitResult): Fit result as defined in ``linear_operator_learning.kernel.structs``.
         K_X (ndarray): Kernel matrix of the input data.
         K_YX (ndarray): Kernel matrix between the output data and the input data.
 
-    Returns:
-        EigResult: as defined in ``operator_learning.structs``
 
     Shape:
         ``K_X``: :math:`(N, N)`, where :math:`N` is the sample size.
@@ -79,17 +77,15 @@ def evaluate_eigenfunction(
         K_Xin_X_or_Y: Kernel matrix between initial conditions and input data (for right
             eigenfunctions) or output data (for left eigenfunctions)
 
-    Returns:
-        ndarray: Evaluated eigenfunctions
 
     Shape:
-        ``eig_results``: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
+        ``eig_result``: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
         where :math:`N` is the sample size and  :math:`R` is the rank of the regressor.
 
         ``K_Xin_X_or_Y``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to
         predict and :math:`N` is the sample size.
 
-        Output:
+        Output: :math:`(N_0, R)`
     """
     vr_or_vl = eig_result[which]
     rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
@@ -120,8 +116,6 @@ def stable_topk(
         rcond (float, optional): Value below which the values are discarded. Defaults to None, in which case it is set according to the machine precision of vec's dtype.
         ignore_warnings (bool): If False, raise a warning when some elements are discarted for being below the requested numerical precision.
 
-    Returns:
-        tuple[ndarray, ndarray]: top values and their indices.
     """
     if rcond is None:
         rcond = 10.0 * vec.shape[0] * np.finfo(vec.dtype).eps

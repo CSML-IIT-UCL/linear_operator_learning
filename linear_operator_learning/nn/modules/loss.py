@@ -62,8 +62,6 @@ class L2ContrastiveLoss(Module):
             x (Tensor): Input features.
             y (Tensor): Output features.
 
-        Returns:
-            Tensor: Loss value.
 
         Shape:
             ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
@@ -131,8 +129,6 @@ class KLContrastiveLoss(Module):
             x (Tensor): Input features.
             y (Tensor): Output features.
 
-        Returns:
-            Tensor: Loss value.
 
         Shape:
             ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
