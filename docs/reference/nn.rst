@@ -23,6 +23,18 @@ Loss Functions
     :members:
     :exclude-members: __init__, __new__
 
+.. autoclass:: linear_operator_learning.nn.VampLoss
+    :members:
+    :exclude-members: __init__, __new__
+
+.. autoclass:: linear_operator_learning.nn.DPLoss
+    :members:
+    :exclude-members: __init__, __new__
+
+.. autoclass:: linear_operator_learning.nn.LogFroLoss
+    :members:
+    :exclude-members: __init__, __new__
+
 .. _nn_modules:
 Modules
 ~~~~~~~

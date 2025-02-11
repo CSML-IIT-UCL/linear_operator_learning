@@ -6,7 +6,7 @@ from torch.nn import Module
 
 from linear_operator_learning.nn import functional as F
 
-__all__ = ["VampLoss", "L2ContrastiveLoss", "KLContrastiveLoss"]
+__all__ = ["VampLoss", "L2ContrastiveLoss", "KLContrastiveLoss", "DPLoss", "LogFroLoss"]
 
 
 class VampLoss(Module):
@@ -29,8 +29,9 @@ class VampLoss(Module):
     def forward(self, x: Tensor, y: Tensor) -> Tensor:
         """Forward pass of VampLoss.
 
-        x (Tensor): Features for x.
-        y (Tensor): Features for y.
+        Args:
+            x (Tensor): Features for x.
+            y (Tensor): Features for y.
 
         Raises:
             NotImplementedError: If ``schatten_norm`` is not 1 or 2.
@@ -101,13 +102,13 @@ class DPLoss(Module):
         """Forward pass of DPLoss.
 
         Args:
-        x (Tensor): Features for x.
-        y (Tensor): Features for y.
+            x (Tensor): Features for x.
+            y (Tensor): Features for y.
 
         Shape:
-        ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+            ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
 
-        ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
+            ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
         return F.dp_loss(x, y, self.relaxed, self.metric_deformation, self.center_covariances)
 
