@@ -1,7 +1,7 @@
 """Modules entry point."""
 
+from .bilinear_net import BiLinearNet
 from .loss import L2ContrastiveLoss
 from .mlp import MLP
-from .ncp import NCP
 
-__all__ = ["L2ContrastiveLoss", "MLP", "NCP"]
+__all__ = ["L2ContrastiveLoss", "MLP", "BiLinearNet"]
