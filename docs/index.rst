@@ -1,9 +1,21 @@
 .. image:: _static/logo.svg
-   :alt: Logo
-   :width: 300px
-   :align: center
+         :alt: Logo
+         :width: 300px
+         :align: center
 
-A package to learn linear operators, developed by the `Computational Statistics & Machine Learning lab <https://csml.iit.it/home>`_ at the Italian Institute of Technology.
+Linear Operator Learning — LOL for short — is package to learn linear operators, developed by the `Computational Statistics & Machine Learning lab <https://csml.iit.it/home>`_ at the Italian Institute of Technology. 
+
+|
+
+You can install it with :code:`pip` as
+
+.. code::
+      
+   pip install linear-operator-learning
+
+|
+
+If you want to contibute to the project, please follow :ref:`these guidelines <contributing>`.
 
 .. toctree::
    :maxdepth: 2
@@ -11,6 +23,7 @@ A package to learn linear operators, developed by the `Computational Statistics 
    :hidden:
 
    Introduction <self>
+   contributing.md
 
 .. toctree::
    :maxdepth: 2

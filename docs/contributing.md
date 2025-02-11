@@ -1,16 +1,5 @@
-<p align = "left">
-  <img src="logo.svg" alt="SVG Image" style="width:50%;"/>
-</p>
-
-## Install
-
-To install this package as a dependency, run:
-
-```bash
-pip install linear-operator-learning
-```
-
-## Development
+(contributing)=
+# Contributing
 
 To develop this project, please setup the [`uv` project manager](https://astral.sh/uv) by running the following commands:
 
