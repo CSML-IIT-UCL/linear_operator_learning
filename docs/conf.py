@@ -60,15 +60,11 @@ source_suffix = {
 pygments_style = "default"
 pygments_style_dark = "material"
 
-html_title = "Operator Learning"
 # Additional theme configuration
+html_title = "Linear Operator Learning"
 html_theme_options = {
     "show_prev_next": True,
     "show_scrolltop": True,
-    "main_nav_links": {
-        "Docs": "index",
-        "API Reference": "reference/index",
-    },
     "extra_header_link_icons": {
         "GitHub": {
             "link": "https://github.com/CSML-IIT-UCL/linear_operator_learning",
