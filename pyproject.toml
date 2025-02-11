@@ -1,6 +1,6 @@
 [project]
 name = "linear-operator-learning"
-version = "0.1.8"
+version = "0.1.9"
 description = "A package to learn linear operators"
 readme = "README.md"
 authors = [
@@ -69,7 +69,7 @@ ignore = [
 convention = "google"
 
 [bumpver]
-current_version = "0.1.8"
+current_version = "0.1.9"
 version_pattern = "MAJOR.MINOR.PATCH"
 
 [bumpver.file_patterns]
