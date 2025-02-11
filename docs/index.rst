@@ -14,8 +14,15 @@ A package to learn linear operators, developed by the `Computational Statistics 
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Reference:
+   :caption: API Reference: Kernel Methods
    :hidden:
 
    reference/kernel
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference: Neural Networks
+   :hidden:
+
    reference/nn
+   reference/nn_functional

@@ -20,7 +20,21 @@ class _MLPBlock(Module):
 
 
 class MLP(Module):
-    """Multilayer Perceptron."""
+    """Multi Layer Perceptron.
+
+    Args:
+        input_shape (int): Input shape of the MLP.
+        n_hidden (int): Number of hidden layers.
+        layer_size (int or list of ints): Number of neurons in each layer. If an int is
+            provided, it is used as the number of neurons for all hidden layers. Otherwise,
+            the list of int is used to define the number of neurons for each layer.
+        output_shape (int): Output shape of the MLP.
+        dropout (float): Dropout probability between layers. Defaults to 0.0.
+        activation (torch.nn.Module): Activation function. Defaults to ReLU.
+        iterative_whitening (bool): Whether to add an IterNorm layer at the end of the
+            network. Defaults to False.
+        bias (bool): Whether to include bias in the layers. Defaults to False.
+    """
 
     def __init__(
         self,
