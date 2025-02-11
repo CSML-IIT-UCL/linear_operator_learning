@@ -1,35 +1,46 @@
 .. _nn:
 ===============
-Neural Networks
+:code:`nn`
 ===============
+
 .. module:: linear_operator_learning.nn
 
-Functional
-----------
+Table of Contents
+-----------------
 
+- :ref:`Loss Functions <nn_loss_fns>`
+- :ref:`Modules <nn_modules>`
+
+.. _nn_loss_fns:
 Loss Functions
 ~~~~~~~~~~~~~~
 
-.. autofunction:: linear_operator_learning.nn.functional.L2_contrastive_loss
+.. autoclass:: linear_operator_learning.nn.L2ContrastiveLoss
+    :members:
+    :exclude-members: __init__, __new__
 
-.. autofunction:: linear_operator_learning.nn.functional.KL_contrastive_score
+.. autoclass:: linear_operator_learning.nn.KLContrastiveLoss
+    :members:
+    :exclude-members: __init__, __new__
 
-.. autofunction:: linear_operator_learning.nn.functional.vamp_loss
+.. autoclass:: linear_operator_learning.nn.VampLoss
+    :members:
+    :exclude-members: __init__, __new__
 
-.. autofunction:: linear_operator_learning.nn.functional.dp_loss
+.. autoclass:: linear_operator_learning.nn.DPLoss
+    :members:
+    :exclude-members: __init__, __new__
 
+.. autoclass:: linear_operator_learning.nn.LogFroLoss
+    :members:
+    :exclude-members: __init__, __new__
 
-Regularization Functions
-~~~~~~~~~~~~~~~~~~~~~~~~
+.. _nn_modules:
+Modules
+~~~~~~~
 
-.. autofunction:: linear_operator_learning.nn.functional.logfro_loss
-
-.. _nn_linalg:
-Linear Algebra Utilities
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: linear_operator_learning.nn.linalg.covariance
-
-.. autofunction:: linear_operator_learning.nn.linalg.sqrtmh
+.. autoclass:: linear_operator_learning.nn.MLP
+    :members:
+    :exclude-members: __init__, __new__, forward
 
 .. footbibliography::

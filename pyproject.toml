@@ -1,6 +1,6 @@
 [project]
 name = "linear-operator-learning"
-version = "0.1.8"
+version = "0.1.9"
 description = "A package to learn linear operators"
 readme = "README.md"
 authors = [
@@ -35,6 +35,14 @@ docs = [
     "sphinxcontrib-bibtex>=2.6.3",
     "sphinxcontrib-jsmath==1.0.1",
 ]
+examples = [
+    "ipykernel>=6.29.5",
+    "lightning>=2.5.0.post0",
+    "loguru>=0.7.3",
+    "matplotlib>=3.10.0",
+    "scikit-learn>=1.6.1",
+    "seaborn>=0.13.2",
+]
 
 [tool.ruff]
 line-length = 100
@@ -52,6 +60,7 @@ select = [
 
 ignore = [
     "F401", # Don't remove unused imports
+    "D107", # Document __init__ arguments inside class docstring
 ]
 
 
@@ -60,7 +69,7 @@ ignore = [
 convention = "google"
 
 [bumpver]
-current_version = "0.1.8"
+current_version = "0.1.9"
 version_pattern = "MAJOR.MINOR.PATCH"
 
 [bumpver.file_patterns]

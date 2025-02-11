@@ -1,7 +1,7 @@
 """Linear Algebra."""
 
 from math import sqrt
-from typing import Literal
+from typing import Literal, NamedTuple
 
 import numpy as np
 import scipy
@@ -155,3 +155,73 @@ def evaluate_eigenfunction(
     """
     vr_or_vl = eig_result[which]
     return X.to(vr_or_vl.dtype) @ vr_or_vl
+
+
+def whitening(u: Tensor, v: Tensor) -> tuple:
+    """TODO: Add docs."""
+    cov_u = covariance(u)
+    cov_v = covariance(v)
+    cov_uv = covariance(u, v)
+
+    sqrt_cov_u_inv = torch.linalg.pinv(sqrtmh(cov_u))
+    sqrt_cov_v_inv = torch.linalg.pinv(sqrtmh(cov_v))
+
+    M = sqrt_cov_u_inv @ cov_uv @ sqrt_cov_v_inv
+    e_val, sing_vec_l = torch.linalg.eigh(M @ M.T)
+    e_val, sing_vec_l = filter_reduced_rank_svals(e_val, sing_vec_l)
+    sing_val = torch.sqrt(e_val)
+    sing_vec_r = (M.T @ sing_vec_l) / sing_val
+
+    return sqrt_cov_u_inv, sqrt_cov_v_inv, sing_val, sing_vec_l, sing_vec_r
+
+
+####################################################################################################
+# TODO: THIS IS JUST COPY AND PASTE FROM OLD NCP
+# Should topk and filter_reduced_rank_svals be in utils? They look like linalg to me, specially the
+# filter
+####################################################################################################
+
+
+# Sorting and parsing
+class TopKReturnType(NamedTuple):  # noqa: D101
+    values: torch.Tensor
+    indices: torch.Tensor
+
+
+def topk(vec: torch.Tensor, k: int):  # noqa: D103
+    assert vec.ndim == 1, "'vec' must be a 1D array"
+    assert k > 0, "k should be greater than 0"
+    sort_perm = torch.flip(torch.argsort(vec), dims=[0])  # descending order
+    indices = sort_perm[:k]
+    values = vec[indices]
+    return TopKReturnType(values, indices)
+
+
+def filter_reduced_rank_svals(values, vectors):  # noqa: D103
+    eps = 2 * torch.finfo(torch.get_default_dtype()).eps
+    # Filtering procedure.
+    # Create a mask which is True when the real part of the eigenvalue is negative or the imaginary part is nonzero
+    is_invalid = torch.logical_or(
+        torch.real(values) <= eps,
+        torch.imag(values) != 0
+        if torch.is_complex(values)
+        else torch.zeros(len(values), device=values.device),
+    )
+    # Check if any is invalid take the first occurrence of a True value in the mask and filter everything after that
+    if torch.any(is_invalid):
+        values = values[~is_invalid].real
+        vectors = vectors[:, ~is_invalid]
+
+    sort_perm = topk(values, len(values)).indices
+    values = values[sort_perm]
+    vectors = vectors[:, sort_perm]
+
+    # Assert that the eigenvectors do not have any imaginary part
+    assert torch.all(
+        torch.imag(vectors) == 0 if torch.is_complex(values) else torch.ones(len(values))
+    ), "The eigenvectors should be real. Decrease the rank or increase the regularization strength."
+
+    # Take the real part of the eigenvectors
+    vectors = torch.real(vectors)
+    values = torch.real(values)
+    return values, vectors
