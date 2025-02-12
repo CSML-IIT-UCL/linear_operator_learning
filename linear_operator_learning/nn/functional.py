@@ -103,7 +103,7 @@ def orthn_fro_reg(cov: Tensor) -> Tensor:
 
     .. math::
 
-       \lVert C - I\rVert_F^2 = \text{Tr}(C^2 -2C + I).
+       \lVert C - I\rVert_F^2 = \text{Tr}((C-I)^2).
 
     Args:
         cov (Tensor): A symmetric positive-definite matrix.
@@ -114,7 +114,7 @@ def orthn_fro_reg(cov: Tensor) -> Tensor:
     eps = torch.finfo(cov.dtype).eps * cov.shape[0]
     vals_x = torch.linalg.eigvalsh(cov)
     vals_x = torch.where(vals_x > eps, vals_x, eps)
-    reg = torch.mean(vals_x * (vals_x - 1.0) + 1.0)
+    reg = torch.mean((vals_x - 1.0) ** 2)
     return reg
 
 
