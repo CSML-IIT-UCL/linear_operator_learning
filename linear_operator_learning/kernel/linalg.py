@@ -64,6 +64,38 @@ def eig(
     return result
 
 
+def eig_physics_informed(
+    fit_result: FitResult,
+    shift: float,
+) -> EigResult:
+    """Computes the eigendecomposition of the infinitesimal generator operator.
+
+    Args:
+        fit_result (FitResult): Fit result as defined in ``operator_learning.structs``.
+        shift (float): Shift parameter of the resolvent.
+
+    Returns:
+        EigResult: as defined in ``operator_learning.structs``
+
+    """
+    U = fit_result["U"]
+    V = fit_result["V"]
+    sigma = fit_result["svals"]
+    evals, vl, vr = scipy.linalg.eig(V.T @ V @ np.diag(sigma**2), left=True)
+
+    evals = sanitize_complex_conjugates(evals)
+    lambdas = shift - 1 / evals
+    r_perm = np.argsort(-lambdas)
+    vr = vr[:, r_perm]
+    l_perm = np.argsort(-lambdas.conj())
+    vl = vl[:, l_perm]
+    evals = evals[r_perm]
+
+    vl /= np.sqrt(evals)
+    result: EigResult = {"values": lambdas[r_perm], "left": V @ vl, "right": U @ vr}
+    return result
+
+
 def evaluate_eigenfunction(
     eig_result: EigResult,
     which: Literal["left", "right"],
@@ -90,6 +122,31 @@ def evaluate_eigenfunction(
     vr_or_vl = eig_result[which]
     rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
     return np.linalg.multi_dot([rsqrt_dim * K_Xin_X_or_Y, vr_or_vl])
+
+
+def evaluate_right_eigenfunction_physics_informed(
+    kernel_X: np.ndarray, dKernel_X: np.ndarray, eig_result: np.ndarray, shift: float
+):
+    r"""Fits the physics informed Reduced Rank Estimator.
+
+    Args:
+        kernel_X (np.ndarray): kernel matrix of the training data
+        dKernel_X (np.ndarray): derivative of the kernel: dK_X_{i,j} = <\phi(x_i),d\phi(x_j)> (matrix N in the paper)
+        eig_result: EigResult object containing eigendecomposition results
+        shift (float): shift parameter of the resolvent
+
+    Shape:
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+        ``dkernel_X``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math: `d` is the dimensionality of the input data.
+
+    Returns:
+        Right eigenfunctions of the generator of shape :math:  `(N, r)` where :math: `r` is the rank of the estimator
+
+    """
+    npts = kernel_X.shape[0]
+    sqrt_npts = np.sqrt(npts)
+    u = eig_result["right"]
+    return (np.sqrt(shift) * kernel_X @ u[:npts, :] + dKernel_X @ u[npts:, :]) / sqrt_npts
 
 
 def add_diagonal_(M: ndarray, alpha: float):
