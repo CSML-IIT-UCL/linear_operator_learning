@@ -9,7 +9,7 @@ Table of Contents
 -----------------
 
 - :ref:`Loss Functions <nn_func_loss_fns>`
-- :ref:`Regularizations <nn_func_reg_fns>`
+- :ref:`Regularization Functions <nn_func_reg_fns>`
 - :ref:`Linear Algebra <nn_func_linalg>`
 
 .. _nn_func_loss_fns:
@@ -28,7 +28,9 @@ Loss Functions
 Regularization Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: linear_operator_learning.nn.functional.logfro_loss
+.. autofunction:: linear_operator_learning.nn.functional.orthn_fro_reg
+
+.. autofunction:: linear_operator_learning.nn.functional.orthn_logfro_reg
 
 .. _nn_func_linalg:
 Linear Algebra Utilities

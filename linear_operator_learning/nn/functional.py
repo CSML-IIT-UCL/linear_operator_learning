@@ -50,8 +50,8 @@ def dp_loss(
         covariance(y, center=center_covariances),
         covariance(x, y, center=center_covariances),
     )
-    R_x = logfro_loss(cov_x)
-    R_y = logfro_loss(cov_y)
+    R_x = orthn_logfro_reg(cov_x)
+    R_y = orthn_logfro_reg(cov_y)
     if relaxed:
         S = (torch.linalg.matrix_norm(cov_xy, ord="fro") ** 2) / (
             torch.linalg.matrix_norm(cov_x, ord=2) * torch.linalg.matrix_norm(cov_y, ord=2)
@@ -95,10 +95,44 @@ def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
     return off_diag - log_term
 
 
-def logfro_loss(cov: Tensor) -> Tensor:
-    """See :class:`linear_operator_learning.nn.LogFroLoss` for details."""
+# Regularizers______________________________________________________________________________________
+
+
+def orthn_fro_reg(cov: Tensor) -> Tensor:
+    r"""Orthonormality regularization with Frobenious norm of covariance.
+
+    .. math::
+
+       \lVert C - I\rVert_F^2 = \text{Tr}(C^2 -2C + I).
+
+    Args:
+        cov (Tensor): A symmetric positive-definite matrix.
+
+    Shape:
+        ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
+    """
     eps = torch.finfo(cov.dtype).eps * cov.shape[0]
     vals_x = torch.linalg.eigvalsh(cov)
     vals_x = torch.where(vals_x > eps, vals_x, eps)
-    loss = torch.mean(-torch.log(vals_x) + vals_x * (vals_x - 1.0))
-    return loss
+    reg = torch.mean(vals_x * (vals_x - 1.0) + 1.0)
+    return reg
+
+
+def orthn_logfro_reg(cov: Tensor) -> Tensor:
+    r"""Orthonormality regularization with logarithm + Frobenious norm of covariance by :footcite:t:`Kostic2023DPNets`.
+
+    .. math::
+
+        \text{Tr}(C^{2} - C -\ln(C)).
+
+    Args:
+        cov (Tensor): A symmetric positive-definite matrix.
+
+    Shape:
+        ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
+    """
+    eps = torch.finfo(cov.dtype).eps * cov.shape[0]
+    vals_x = torch.linalg.eigvalsh(cov)
+    vals_x = torch.where(vals_x > eps, vals_x, eps)
+    reg = torch.mean(-torch.log(vals_x) + vals_x * (vals_x - 1.0))
+    return reg
