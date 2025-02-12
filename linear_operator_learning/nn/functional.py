@@ -98,19 +98,20 @@ def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
 # Regularizers______________________________________________________________________________________
 
 
-def orthn_fro_reg(cov: Tensor) -> Tensor:
-    r"""Orthonormality regularization with Frobenious norm of covariance.
+def orthn_fro_reg(x: Tensor) -> Tensor:
+    r"""Orthonormality regularization with Frobenious norm of covariance of x.
 
     .. math::
 
-       \lVert C - I\rVert_F^2 = \text{Tr}((C-I)^2).
+       \frac{1}{D}\lVert C_X - I\rVert_F^2 =  \frac{1}{D}\text{Tr}((C_X-I)^2).
 
     Args:
-        cov (Tensor): A symmetric positive-definite matrix.
+        x (Tensor): Input features.
 
     Shape:
-        ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
+        ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
+    cov = covariance(x)  # shape: (D, D)
     eps = torch.finfo(cov.dtype).eps * cov.shape[0]
     vals_x = torch.linalg.eigvalsh(cov)
     vals_x = torch.where(vals_x > eps, vals_x, eps)
@@ -118,19 +119,20 @@ def orthn_fro_reg(cov: Tensor) -> Tensor:
     return reg
 
 
-def orthn_logfro_reg(cov: Tensor) -> Tensor:
-    r"""Orthonormality regularization with logarithm + Frobenious norm of covariance by :footcite:t:`Kostic2023DPNets`.
+def orthn_logfro_reg(x: Tensor) -> Tensor:
+    r"""Orthonormality regularization with log-Frobenious norm of covariance of x by :footcite:t:`Kostic2023DPNets`.
 
     .. math::
 
-        \text{Tr}(C^{2} - C -\ln(C)).
+        \frac{1}{D}\text{Tr}(C_X^{2} - C_X -\ln(C_X)).
 
     Args:
-        cov (Tensor): A symmetric positive-definite matrix.
+        x (Tensor): Input features.
 
     Shape:
-        ``cov``: :math:`(D, D)`, where :math:`D` is the number of features.
+        ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
+    cov = covariance(x)  # shape: (D, D)
     eps = torch.finfo(cov.dtype).eps * cov.shape[0]
     vals_x = torch.linalg.eigvalsh(cov)
     vals_x = torch.where(vals_x > eps, vals_x, eps)

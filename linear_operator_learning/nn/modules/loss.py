@@ -71,9 +71,9 @@ class VampLoss(_RegularizedLoss):
 
             ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
-        return F.vamp_loss(
-            x, y, self.schatten_norm, self.center_covariances
-        ) + self.gamma * self.regularizer(covariance(x, y))
+        return F.vamp_loss(x, y, self.schatten_norm, self.center_covariances) + self.gamma * (
+            self.regularizer(x) + self.regularizer(y)
+        )
 
 
 class L2ContrastiveLoss(_RegularizedLoss):
@@ -104,7 +104,9 @@ class L2ContrastiveLoss(_RegularizedLoss):
 
             ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
-        return F.l2_contrastive_loss(x, y) + self.gamma * self.regularizer(covariance(x, y))
+        return F.l2_contrastive_loss(x, y) + self.gamma * (
+            self.regularizer(x) + self.regularizer(y)
+        )
 
 
 class DPLoss(_RegularizedLoss):
@@ -148,7 +150,7 @@ class DPLoss(_RegularizedLoss):
         """
         return F.dp_loss(
             x, y, self.relaxed, self.metric_deformation, self.center_covariances
-        ) + self.gamma * self.regularizer(covariance(x, y))
+        ) + self.gamma * (self.regularizer(x) + self.regularizer(y))
 
 
 class KLContrastiveLoss(_RegularizedLoss):
@@ -179,4 +181,6 @@ class KLContrastiveLoss(_RegularizedLoss):
 
             ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
-        return F.kl_contrastive_loss(x, y) + self.gamma * self.regularizer(covariance(x, y))
+        return F.kl_contrastive_loss(x, y) + self.gamma * (
+            self.regularizer(x) + self.regularizer(y)
+        )
