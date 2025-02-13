@@ -13,6 +13,9 @@ def cross_cov_norm_squared_unbiased(x: torch.Tensor, y: torch.Tensor, permutatio
     :math:`= \mathbb{E}_{(x,y),(x',y') \sim p(x,y)} [(x^T y') (x'^T y)]`
     :math:`\approx \frac{1}{N^2} \sum_n \sum_m [(x_n^T y'_m) (x'_m^T y_n)]`
 
+    .. note::
+    The random variable is assumed to be centered.
+
     Args:
         x (torch.Tensor): (n_samples, r_x) Centered realizations of a random variable x = [x_1, ..., x_{r_x}].
         y (torch.Tensor): (n_samples, r_y) Centered realizations of a random variable y = [y_1, ..., y_{r_y}].
@@ -46,6 +49,9 @@ def cov_norm_squared_unbiased(x: torch.Tensor, permutation=None):
     :math:`\|\|\mathbf{C}_x\|\|_F^2 = \text{tr}(\mathbf{C}_x^T \mathbf{C}_x) = \sum_i \sum_j (\mathbb{E}_{x} [x_i x_j]) (\mathbb{E}_{x'} [x'_j x'_i])`
     :math:`= \mathbb{E}_{x,x' \sim p(x)} [(x^T x')^2]`
     :math:`\approx \frac{1}{N^2} \sum_n \sum_m [(x_n^T x'_m)^2]`
+
+    .. note::
+        The random variable is assumed to be centered.
 
     Args:
         x (torch.Tensor): (n_samples, r) Centered realizations of a random variable x = [x_1, ..., x_r].

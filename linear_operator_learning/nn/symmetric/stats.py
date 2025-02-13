@@ -1,10 +1,9 @@
 """Statistics utilities for symmetric random variables with known group representations."""
 
 import numpy as np
-
-# Created by Daniel Ordoñez (daniels.ordonez@gmail.com) at 13/02/25
 import torch
 from escnn.group import Representation
+from symm_torch.utils.rep_theory import isotypic_decomp_rep
 
 
 def symmetric_moments(x: torch.Tensor, rep_X: Representation) -> [torch.Tensor, torch.Tensor]:
@@ -119,8 +118,8 @@ def isotypic_cross_cov(
         centered (bool): whether to center the signals before computing the cross-covariance.
 
     Returns:
-        torch.Tensor: \mathbf{C}_{xy}, (m_x \cdot d, m_y \cdot d) the cross-covariance matrix between the isotypic subspaces of X and Y.
-        torch.Tensor: \mathbf{D}_{xy}, (m_x, m_y) free parameters of the cross-covariance matrix in the isotypic basis.
+        torch.Tensor: \mathbf{C}_{xy}, (m_y \cdot d, m_x \cdot d) the cross-covariance matrix between the isotypic subspaces of X and Y.
+        torch.Tensor: \mathbf{D}_{xy}, (m_y, m_x) free parameters of the cross-covariance matrix in the isotypic basis.
     """
     assert len(rep_X._irreps_multiplicities) == len(rep_Y._irreps_multiplicities) == 1, (
         f"Expected group representation of an isotypic subspace.I.e., with only one type of irrep. \nFound: "
@@ -145,7 +144,7 @@ def isotypic_cross_cov(
 
     # If required we must change bases to the isotypic bases.
     Qx_T, Qx = rep_X.change_of_basis_inv, rep_X.change_of_basis
-    Qy_T, _Qy = rep_Y.change_of_basis_inv, rep_Y.change_of_basis
+    Qy_T, Qy = rep_Y.change_of_basis_inv, rep_Y.change_of_basis
     x_in_iso_basis = np.allclose(Qx_T, np.eye(Qx_T.shape[0]), atol=1e-6, rtol=1e-4)
     y_in_iso_basis = np.allclose(Qy_T, np.eye(Qy_T.shape[0]), atol=1e-6, rtol=1e-4)
     if x_in_iso_basis:
@@ -158,7 +157,7 @@ def isotypic_cross_cov(
         Y_iso = Y
     else:
         Qy_T = torch.Tensor(Qy_T).to(device=Y.device, dtype=Y.dtype)
-        # Qy = torch.Tensor(Qy).to(device=Y.device, dtype=Y.dtype)
+        Qy = torch.Tensor(Qy).to(device=Y.device, dtype=Y.dtype)
         Y_iso = torch.einsum("...ij,...j->...i", Qy_T, Y)  # y_iso = Q_y2iso @ y
 
     if irrep_dim > 1:
@@ -180,7 +179,7 @@ def isotypic_cross_cov(
     assert n_samples == X.shape[0] * irrep_dim
 
     c = 1 if centered and is_inv_subspace else 0
-    Dxy = torch.einsum("...i,...j->ij", X_sing, Y_sing) / (n_samples - c)
+    Dxy = torch.einsum("...y,...x->yx", Y_sing, X_sing) / (n_samples - c)
     if irrep_dim > 1:  # Broadcast the estimates according to Cxy = Dxy ⊗ I_d.
         I_d = torch.eye(irrep_dim, device=Dxy.device, dtype=Dxy.dtype)
         Cxy_iso = torch.kron(Dxy, I_d)
@@ -189,14 +188,71 @@ def isotypic_cross_cov(
 
     # Change back to original basis if needed _______________________
     if not x_in_iso_basis:
-        Cxy = Qx @ Cxy_iso
+        Cxy = Qy @ Cxy_iso
     else:
         Cxy = Cxy_iso
 
     if not y_in_iso_basis:
-        Cxy = Cxy @ Qy_T
+        Cxy = Cxy @ Qx_T
 
     return Cxy, Dxy
+
+
+def cross_cov(X: torch.Tensor, Y: torch.Tensor, rep_X: Representation, rep_Y: Representation):
+    r"""Compute the cross-covariance between two symmetric random variables.
+
+    Args:
+        X (torch.Tensor): (n_samples, r_x) Centered realizations of a random variable x = [x_1, ..., x_{r_x}].
+        Y (torch.Tensor): (n_samples, r_y) Centered realizations of a random variable y = [y_1, ..., y_{r_y}].
+        rep_X (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
+        rep_Y (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
+
+    Returns:
+        torch.Tensor: The cross-covariance matrix between the two random variables, of shape (r_y, r_x).
+    """
+    assert X.shape[0] == Y.shape[0], "Expected equal number of samples in X and Y"
+    assert X.shape[1] == rep_X.size, f"Expected X shape (n_samples, {rep_X.size}), got {X.shape}"
+    assert Y.shape[1] == rep_Y.size, f"Expected Y shape (n_samples, {rep_Y.size}), got {Y.shape}"
+    assert X.shape[-1] == rep_X.size, f"Expected X shape (..., {rep_X.size}), got {X.shape}"
+    assert Y.shape[-1] == rep_Y.size, f"Expected Y shape (..., {rep_Y.size}), got {Y.shape}"
+
+    rep_X_iso = isotypic_decomp_rep(rep_X)
+    rep_Y_iso = isotypic_decomp_rep(rep_Y)
+    # Changes of basis from the Disentangled/Isotypic-basis of X, and Y to the original basis.
+    Qx = torch.tensor(rep_X_iso.change_of_basis, device=X.device, dtype=X.dtype)
+    Qy = torch.tensor(rep_Y_iso.change_of_basis, device=Y.device, dtype=Y.dtype)
+
+    rep_X_iso_subspaces = rep_X_iso.attributes["isotypic_reps"]
+    rep_Y_iso_subspaces = rep_Y_iso.attributes["isotypic_reps"]
+
+    # Get the dimensions of the isotypic subspaces of the same type in the input/output representations.
+    iso_idx_X, iso_idx_Y = {}, {}
+    x_dim = 0
+    for iso_id, rep_k in rep_X_iso_subspaces.items():
+        iso_idx_X[iso_id] = slice(x_dim, x_dim + rep_k.size)
+        x_dim += rep_k.size
+    y_dim = 0
+    for iso_id, rep_k in rep_Y_iso_subspaces.items():
+        iso_idx_Y[iso_id] = slice(y_dim, y_dim + rep_k.size)
+        y_dim += rep_k.size
+
+    X_iso = torch.einsum("ij,...j->...i", Qx.T, X)
+    Y_iso = torch.einsum("ij,...j->...i", Qy.T, Y)
+    Cxy_iso = torch.zeros((rep_Y.size, rep_X.size), dtype=X.dtype, device=X.device)
+    for iso_id in rep_Y_iso_subspaces.keys():
+        if iso_id not in rep_X_iso_subspaces:
+            continue  # No covariance between the isotypic subspaces of different types.
+        X_k = X_iso[..., iso_idx_X[iso_id]]
+        Y_k = Y_iso[..., iso_idx_Y[iso_id]]
+        rep_X_k = rep_X_iso_subspaces[iso_id]
+        rep_Y_k = rep_Y_iso_subspaces[iso_id]
+        # Cxy_k = Dxy_k ⊗ I_d [my * d x mx * d]
+        Cxy_k, _ = isotypic_cross_cov(X_k, Y_k, rep_X_k, rep_Y_k)
+        Cxy_iso[iso_idx_Y[iso_id], iso_idx_X[iso_id]] = Cxy_k
+
+    # Change to the original basis
+    Cxy = Qy.T @ Cxy_iso @ Qx
+    return Cxy
 
 
 #  Tests to confirm the operation of the functions is correct _________________________________________
@@ -210,8 +266,9 @@ def test_isotypic_cross_cov():  # noqa: D103
     for irrep in G.representations.values():
         if not isinstance(irrep, IrreducibleRepresentation):
             continue
-        x_rep_iso = directsum([irrep] * 2)  # ρ_Χ
-        y_rep_iso = directsum([irrep] * 3)  # ρ_Y
+        mx, my = 2, 3
+        x_rep_iso = directsum([irrep] * mx)  # ρ_Χ
+        y_rep_iso = directsum([irrep] * my)  # ρ_Y
 
         batch_size = 500
         #  Simulate symmetric random variables
@@ -220,6 +277,10 @@ def test_isotypic_cross_cov():  # noqa: D103
 
         Cxy_iso, Dxy = isotypic_cross_cov(X_iso, Y_iso, x_rep_iso, y_rep_iso)
         Cxy_iso = Cxy_iso.numpy()
+
+        assert Cxy_iso.shape == (my * irrep.size, mx * irrep.size), (
+            f"Expected Cxy_iso to have shape ({my * irrep.size}, {mx * irrep.size}), got {Cxy_iso.shape}"
+        )
 
         # Test change of basis is handled appropriately, using random change of basis.
         Qx, _ = np.linalg.qr(np.random.randn(x_rep_iso.size, x_rep_iso.size))
@@ -232,8 +293,8 @@ def test_isotypic_cross_cov():  # noqa: D103
         Cxy_p, Dxy = isotypic_cross_cov(X, Y, x_rep, y_rep)
         Cxy_p = Cxy_p.numpy()
 
-        assert np.allclose(Cxy_p, Qx @ Cxy_iso @ Qy.T, atol=1e-6, rtol=1e-4), (
-            f"Expected Cxy_p - Q_x Cxy_iso Q_y^T = 0. Got \n {Cxy_p - Qx @ Cxy_iso @ Qy.T}"
+        assert np.allclose(Cxy_p, Qy @ Cxy_iso @ Qx.T, atol=1e-6, rtol=1e-4), (
+            f"Expected Cxy_p - Q_y Cxy_iso Q_x^T = 0. Got \n {Cxy_p - Qy @ Cxy_iso @ Qx.T}"
         )
 
         # Test that computing Cxy_iso is equivalent to computing standard cross covariance on the G orbit of the data
@@ -262,3 +323,51 @@ def test_isotypic_cross_cov():  # noqa: D103
         assert np.allclose(Cx_iso, Cx_iso_orbit, atol=1e-2, rtol=1e-2), (
             "isotypic_cross_cov is not equivalent to computing the cross-covariance using data-augmentation"
         )
+
+
+def test_cross_cov():  # noqa: D103
+    import escnn
+    from escnn.group import IrreducibleRepresentation, change_basis, directsum
+
+    # Icosahedral group has irreps of dimensions [1, ... 5]. Good test case.
+    # G = escnn.group.Icosahedral()
+    #
+    # x_rep = G.regular_representation
+    # y_rep = G.regular_representation
+
+    G = escnn.group.CyclicGroup(3)
+    mx, my = 3, 5
+    x_rep = directsum([G.regular_representation] * mx)
+    y_rep = directsum([G.regular_representation] * my)
+
+    x_rep = isotypic_decomp_rep(x_rep)
+    y_rep = isotypic_decomp_rep(y_rep)
+    Qx, Qy = x_rep.change_of_basis, y_rep.change_of_basis
+    x_rep_iso = change_basis(x_rep, Qx.T, name=f"{x_rep.name}_iso")  # ρ_Χ_p = Q_Χ ρ_Χ Q_Χ^T
+    y_rep_iso = change_basis(y_rep, Qy.T, name=f"{y_rep.name}_iso")  # ρ_Y_p = Q_Y ρ_Y Q_Y^T
+
+    batch_size = 500
+    # Isotypic basis computation
+    X_iso = torch.randn(batch_size, x_rep.size)
+    Y_iso = torch.randn(batch_size, y_rep.size)
+    Cxy_iso = cross_cov(X_iso, Y_iso, x_rep_iso, y_rep_iso).cpu().numpy()
+
+    # Regular basis computation
+    Qx = torch.tensor(x_rep.change_of_basis, dtype=X_iso.dtype)
+    Qy = torch.tensor(y_rep.change_of_basis, dtype=Y_iso.dtype)
+    X = torch.einsum("ij,...j->...i", Qx, X_iso)
+    Y = torch.einsum("ij,...j->...i", Qy, Y_iso)
+    Cxy = cross_cov(X, Y, x_rep, y_rep).cpu().numpy()
+
+    assert np.allclose(Cxy, Qy.T @ Cxy_iso @ Qx, atol=1e-6, rtol=1e-4), (
+        f"Expected Cxy - Q_y.T Cxy_iso Q_x = 0. Got \n {Cxy - Qy.T @ Cxy_iso @ Qx}"
+    )
+
+    # Test that r.v with different irrep types have no covariance. ===========================================
+    irrep_id1, irrep_id2 = list(G._irreps.keys())[:2]
+    x_rep = directsum([G._irreps[irrep_id1]] * mx)
+    y_rep = directsum([G._irreps[irrep_id2]] * my)
+    X = torch.randn(batch_size, x_rep.size)
+    Y = torch.randn(batch_size, y_rep.size)
+    Cxy = cross_cov(X, Y, x_rep, y_rep).cpu().numpy()
+    assert np.allclose(Cxy, 0), f"Expected Cxy = 0, got {Cxy}"
