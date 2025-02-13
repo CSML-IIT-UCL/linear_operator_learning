@@ -197,3 +197,68 @@ def isotypic_cross_cov(
         Cxy = Cxy @ Qy_T
 
     return Cxy, Dxy
+
+
+#  Tests to confirm the operation of the functions is correct _________________________________________
+def test_isotypic_cross_cov():  # noqa: D103
+    import escnn
+    from escnn.group import IrreducibleRepresentation, change_basis, directsum
+
+    # Icosahedral group has irreps of dimensions [1, ... 5]. Good test case.
+    G = escnn.group.Icosahedral()
+
+    for irrep in G.representations.values():
+        if not isinstance(irrep, IrreducibleRepresentation):
+            continue
+        x_rep_iso = directsum([irrep] * 2)  # ρ_Χ
+        y_rep_iso = directsum([irrep] * 3)  # ρ_Y
+
+        batch_size = 500
+        #  Simulate symmetric random variables
+        X_iso = torch.randn(batch_size, x_rep_iso.size)
+        Y_iso = torch.randn(batch_size, y_rep_iso.size)
+
+        Cxy_iso, Dxy = isotypic_cross_cov(X_iso, Y_iso, x_rep_iso, y_rep_iso)
+        Cxy_iso = Cxy_iso.numpy()
+
+        # Test change of basis is handled appropriately, using random change of basis.
+        Qx, _ = np.linalg.qr(np.random.randn(x_rep_iso.size, x_rep_iso.size))
+        Qy, _ = np.linalg.qr(np.random.randn(y_rep_iso.size, y_rep_iso.size))
+        x_rep = change_basis(x_rep_iso, Qx, name=f"{x_rep_iso.name}_p")  # ρ_Χ_p = Q_Χ ρ_Χ Q_Χ^T
+        y_rep = change_basis(y_rep_iso, Qy, name=f"{y_rep_iso.name}_p")  # ρ_Y_p = Q_Y ρ_Y Q_Y^T
+        # Random variables NOT in irrep-spectral basis.
+        X = torch.Tensor(np.einsum("...ij,...j->...i", Qx, X_iso.numpy()))  # X_p = Q_x X
+        Y = torch.Tensor(np.einsum("...ij,...j->...i", Qy, Y_iso.numpy()))  # Y_p = Q_y Y
+        Cxy_p, Dxy = isotypic_cross_cov(X, Y, x_rep, y_rep)
+        Cxy_p = Cxy_p.numpy()
+
+        assert np.allclose(Cxy_p, Qx @ Cxy_iso @ Qy.T, atol=1e-6, rtol=1e-4), (
+            f"Expected Cxy_p - Q_x Cxy_iso Q_y^T = 0. Got \n {Cxy_p - Qx @ Cxy_iso @ Qy.T}"
+        )
+
+        # Test that computing Cxy_iso is equivalent to computing standard cross covariance on the G orbit of the data
+        # using data augmentation.
+        GX_iso, GY_iso = [X_iso], [Y_iso]
+        for g in G.elements[1:]:
+            X_g = torch.Tensor(np.einsum("...ij,...j->...i", x_rep(g), X_iso.numpy()))
+            Y_g = torch.Tensor(np.einsum("...ij,...j->...i", y_rep(g), Y_iso.numpy()))
+            GX_iso.append(X_g)
+            GY_iso.append(Y_g)
+        GX_iso = torch.cat(GX_iso, dim=0)
+
+        Cx_iso, _ = isotypic_cross_cov(X=GX_iso, Y=GX_iso, rep_X=x_rep_iso, rep_Y=x_rep_iso)
+        Cx_iso = Cx_iso.numpy()
+        # Compute the cross-covariance in standard way doing data augmentation.
+        Cx_iso_orbit = (GX_iso.T @ GX_iso / (GX_iso.shape[0])).numpy()
+        # Project each empirical Cov to the subspace of G-equivariant linear maps, and average across orbit
+        Cx_iso_orbit = np.mean(
+            [
+                np.einsum("ij,jk,kl->il", x_rep_iso(g), Cx_iso_orbit, x_rep_iso(~g))
+                for g in G.elements
+            ],
+            axis=0,
+        )
+        # Numerical error occurs for small sample sizes
+        assert np.allclose(Cx_iso, Cx_iso_orbit, atol=1e-2, rtol=1e-2), (
+            "isotypic_cross_cov is not equivalent to computing the cross-covariance using data-augmentation"
+        )
