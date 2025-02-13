@@ -9,9 +9,14 @@ def cross_cov_norm_squared_unbiased(x: torch.Tensor, y: torch.Tensor, permutatio
     Given the Covariance matrix :math:`\mathbf{C}_{xy} = \mathbb{E}_p(x,y) [x^T y]`, this function computes an unbiased estimation
     of the Frobenius norm of the covariance matrix from two independent sampling sets (an effective samples size of :math:`N^2`).
 
-    :math:`\|\|\mathbf{C}_{xy}\|\|_F^2 = \text{tr}(\mathbf{C}_{xy}^T \mathbf{C}_{xy}) = \sum_i \sum_j (\mathbb{E}_{x,y \sim p(x,y)} [x_i y_j]) (\mathbb{E}_{x',y' \sim p(x,y)} [x_j y_i'])`
-    :math:`= \mathbb{E}_{(x,y),(x',y') \sim p(x,y)} [(x^T y') (x'^T y)]`
-    :math:`\approx \frac{1}{N^2} \sum_n \sum_m [(x_n^T y'_m) (x'_m^T y_n)]`
+    .. math::
+
+        \begin{align}
+            \|\|\mathbf{C}_{xy}\|\|_F^2 &= \text{tr}(\mathbf{C}_{xy}^T \mathbf{C}_{xy})
+            = \sum_i \sum_j (\mathbb{E}_{x,y \sim p(x,y)} [x_i y_j]) (\mathbb{E}_{x',y' \sim p(x,y)} [x_j y_i']) \\
+            &= \mathbb{E}_{(x,y),(x',y') \sim p(x,y)} [(x^T y') (x'^T y)] \\
+            &\approx \frac{1}{N^2} \sum_n \sum_m [(x_n^T y'_m) (x'_m^T y_n)]
+        \end{align}
 
     .. note::
     The random variable is assumed to be centered.

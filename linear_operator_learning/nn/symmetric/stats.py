@@ -201,9 +201,22 @@ def isotypic_cross_cov(
 def cross_cov(X: torch.Tensor, Y: torch.Tensor, rep_X: Representation, rep_Y: Representation):
     r"""Compute the cross-covariance between two symmetric random variables.
 
+    This function exploits the fact that the cross-covariance of r.v. can be computed from the cross-covariance of
+     the orthogonal projections of the r.v. to each isotypic subspace. Hence in the disentangled/isotypic basis the cross-covariance can be computed in
+     block-diagonal form:
+
+    .. math::
+        \begin{align}
+            \mathbf{C}_{xy} &= \mathbf{Q}_y^T (\bigoplus_{k} \mathbf{C}_{xy}^{(k)} )\mathbf{Q}_x \\
+            &= \mathbf{Q}_y^T (\bigoplus_{k} \mathbf{D}_{xy}^{(k)}  \otimes \mathbf{I}_{d_k} )\mathbf{Q}_x \\
+        \end{align}
+    Where :math:`\mathbf{Q}_x^T` and :math:`\mathbf{Q}_y^T` are the change of basis matrices to the isotypic basis of X and Y respectively,
+    :math:`\mathbf{C}_{xy}^{(k)}` is the cross-covariance between the isotypic subspaces of type k, :math:`\mathbf{D}_{xy}^{(k)}` is the free parameters of the cross-covariance matrix in the isotypic basis,
+    and :math:`d_k` is the dimension of the irrep associated with the isotypic subspace of type k.
+
     Args:
-        X (torch.Tensor): (n_samples, r_x) Centered realizations of a random variable x = [x_1, ..., x_{r_x}].
-        Y (torch.Tensor): (n_samples, r_y) Centered realizations of a random variable y = [y_1, ..., y_{r_y}].
+        X (torch.Tensor): (n_samples, r_x) Centered realizations of a random variable x.
+        Y (torch.Tensor): (n_samples, r_y) Centered realizations of a random variable y.
         rep_X (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
         rep_Y (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
 
