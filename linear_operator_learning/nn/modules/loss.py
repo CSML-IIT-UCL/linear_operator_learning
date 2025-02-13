@@ -25,6 +25,7 @@ class _RegularizedLoss(Module):
     def __init__(
         self, gamma: float, regularizer: Literal["orthn_fro", "orthn_logfro"]
     ) -> None:  # TODO: Automatically determine 'gamma' from dim_x and dim_y
+        super().__init__()
         self.gamma = gamma
 
         if regularizer == "orthn_fro":
