@@ -41,7 +41,6 @@ def dp_loss(
     x: Tensor,
     y: Tensor,
     relaxed: bool = True,
-    metric_deformation: float = 1.0,
     center_covariances: bool = True,
 ) -> Tensor:
     """See :class:`linear_operator_learning.nn.DPLoss` for details."""
@@ -50,8 +49,6 @@ def dp_loss(
         covariance(y, center=center_covariances),
         covariance(x, y, center=center_covariances),
     )
-    R_x = orthn_logfro_reg(cov_x)
-    R_y = orthn_logfro_reg(cov_y)
     if relaxed:
         S = (torch.linalg.matrix_norm(cov_xy, ord="fro") ** 2) / (
             torch.linalg.matrix_norm(cov_x, ord=2) * torch.linalg.matrix_norm(cov_y, ord=2)
@@ -60,7 +57,7 @@ def dp_loss(
         M_x = torch.linalg.lstsq(cov_x, cov_xy).solution
         M_y = torch.linalg.lstsq(cov_y, cov_xy.T).solution
         S = torch.trace(M_x @ M_y)
-    return -S + 0.5 * metric_deformation * (R_x + R_y)
+    return -S
 
 
 def l2_contrastive_loss(x: Tensor, y: Tensor) -> Tensor:

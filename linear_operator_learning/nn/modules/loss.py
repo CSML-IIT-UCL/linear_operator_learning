@@ -1,5 +1,7 @@
 """Loss functions for representation learning."""
 
+from typing import Literal
+
 import torch
 from torch import Tensor
 from torch.nn import Module
@@ -17,11 +19,11 @@ class _RegularizedLoss(Module):
 
     Args:
         gamma (float, optional): Regularization strength.
-        regularizer (str, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'.
+        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'.
     """
 
     def __init__(
-        self, gamma: float, regularizer: str
+        self, gamma: float, regularizer: Literal["orthn_fro", "orthn_logfro"]
     ) -> None:  # TODO: Automatically determine 'gamma' from dim_x and dim_y
         self.gamma = gamma
 
@@ -43,6 +45,8 @@ class VampLoss(_RegularizedLoss):
     Args:
         schatten_norm (int, optional): Computes the VAMP-p score with ``p = schatten_norm``. Defaults to 2.
         center_covariances (bool, optional): Use centered covariances to compute the VAMP score. Defaults to True.
+        gamma (float, optional): Regularization strength. Defaults to 1e-3.
+        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
     """
 
     def __init__(
@@ -50,7 +54,7 @@ class VampLoss(_RegularizedLoss):
         schatten_norm: int = 2,
         center_covariances: bool = True,
         gamma: float = 1e-3,
-        regularizer: str = "orthn_fro",
+        regularizer: Literal["orthn_fro", "orthn_logfro"] = "orthn_fro",
     ) -> None:
         super().__init__(gamma, regularizer)
         self.schatten_norm = schatten_norm
@@ -71,9 +75,12 @@ class VampLoss(_RegularizedLoss):
 
             ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
-        return F.vamp_loss(x, y, self.schatten_norm, self.center_covariances) + self.gamma * (
-            self.regularizer(x) + self.regularizer(y)
-        )
+        return F.vamp_loss(
+            x,
+            y,
+            self.schatten_norm,
+            self.center_covariances,
+        ) + self.gamma * (self.regularizer(x) + self.regularizer(y))
 
 
 class L2ContrastiveLoss(_RegularizedLoss):
@@ -82,12 +89,16 @@ class L2ContrastiveLoss(_RegularizedLoss):
     .. math::
 
         \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle^2 - \frac{2}{N}\sum_{i=1}\langle x_{i}, y_{i} \rangle.
+
+    Args:
+        gamma (float, optional): Regularization strength. Defaults to 1e-3.
+        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
     """
 
     def __init__(
         self,
         gamma: float = 1e-3,
-        regularizer: str = "orthn_fro",
+        regularizer: Literal["orthn_fro", "orthn_logfro"] = "orthn_fro",
     ) -> None:
         super().__init__(gamma, regularizer)
 
@@ -119,21 +130,20 @@ class DPLoss(_RegularizedLoss):
 
     Args:
         relaxed (bool, optional): Whether to use the relaxed (more numerically stable) or the full deep-projection loss. Defaults to True.
-        metric_deformation (float, optional): Strength of the metric metric deformation loss: Defaults to 1.0.
         center_covariances (bool, optional): Use centered covariances to compute the Deep Projection loss. Defaults to True.
+        gamma (float, optional): Regularization strength. Defaults to 1e-3.
+        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
     """
 
     def __init__(
         self,
         relaxed: bool = True,
-        metric_deformation: float = 1.0,
         center_covariances: bool = True,
         gamma: float = 1e-3,
-        regularizer: str = "orthn_fro",
+        regularizer: Literal["orthn_fro", "orthn_logfro"] = "orthn_fro",
     ) -> None:
         super().__init__(gamma, regularizer)
         self.relaxed = relaxed
-        self.metric_deformation = metric_deformation
         self.center_covariances = center_covariances
 
     def forward(self, x: Tensor, y: Tensor) -> Tensor:
@@ -149,7 +159,10 @@ class DPLoss(_RegularizedLoss):
             ``y``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
         """
         return F.dp_loss(
-            x, y, self.relaxed, self.metric_deformation, self.center_covariances
+            x,
+            y,
+            self.relaxed,
+            self.center_covariances,
         ) + self.gamma * (self.regularizer(x) + self.regularizer(y))
 
 
@@ -159,12 +172,16 @@ class KLContrastiveLoss(_RegularizedLoss):
     .. math::
 
         \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle - \frac{2}{N}\sum_{i=1}\log\big(\langle x_{i}, y_{i} \rangle\big).
+
+    Args:
+        gamma (float, optional): Regularization strength. Defaults to 1e-3.
+        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
     """
 
     def __init__(
         self,
         gamma: float = 1e-3,
-        regularizer: str = "orthn_fro",
+        regularizer: Literal["orthn_fro", "orthn_logfro"] = "orthn_fro",
     ) -> None:
         super().__init__(gamma, regularizer)
 
