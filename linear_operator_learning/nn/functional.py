@@ -4,6 +4,7 @@ import torch
 from torch import Tensor
 
 from linear_operator_learning.nn.linalg import covariance, sqrtmh
+from linear_operator_learning.nn.stats import cov_norm_squared_unbiased
 
 # Losses_____________________________________________________________________________________________
 
@@ -93,6 +94,43 @@ def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
 
 
 # Regularizers______________________________________________________________________________________
+
+
+def orthonormality_regularization(x, permutation=None):
+    r"""Computes orthonormality and centering regularization for a vector valued random variable.
+
+    Given a dataset of realizations of the random variable x, the orthonormality regularization term penalizes:
+     1. the linear dependency between dimensions of the random variable (orthogonality),
+     2. the deviation of the variance of each dimension from 1 (normalization), and
+     3. the deviation of the mean of each dimension from 0 (centering).
+
+    Formally the orthonormality regularization term is defined as:
+    .. math::
+
+        \begin{align}
+            \| \mathbf{V}_x - \mathbf{I} \|_F^2 &= \| \mathbf{C}_x - \mathbf{I} \|_F^2 + 2 \| \mathbb{E}_p(x) x \|^2 \\
+            &= \text{tr}(\mathbf{C}^2_{x}) - 2 \text{tr}(\mathbf{C}_x) + r + 2 \| \mathbb{E}_p(x) x \|^2
+        \end{align}
+    Where :math:`\mathbf{V}_x \in \mathbb{R}^{r+1 \times r+1}` is the un-centered covariance matrix. :math:`\mathbf{C}_x \in \mathbb{R}^{r \times r}` is the centered covariance matrix of
+    :math:`x`. That is, :math:`[\mathbf{V}_x]_{ij} = \mathbb{E}_p(x) x_i x_j` and :math:`[\mathbf{C}_x]_{ij} = \mathbb{E}_p(x) (x_i - \mathbb{E}_p(x) x_i) (x_j - \mathbb{E}_p(x) x_j)`.
+
+    Args:
+        x (Tensor): Realizations of the random variable :math:`x`, of shape :math:`(n\_samples, r)`.
+        permutation (Tensor, optional): Permutation of the :math:`n\_samples` used to compute unbiased estimation of :math:`\| \mathbf{C}_x \|_F^2`.
+
+    Returns:
+        Tensor: Unbiased estimation of the orthonormality regularization term.
+    """
+    x_mean = x.mean(dim=0, keepdim=True)
+    x_centered = x - x_mean
+    # ||Cx||_F^2 = E_(x,x')~p(x) [((x - E_p(x) x)^T (x' - E_p(x) x'))^2] = tr(Cx^2)
+    Cx_fro_2 = cov_norm_squared_unbiased(x_centered, permutation=permutation)
+    # tr(Cx) = E_p(x) [(x - E_p(x))^T (x - E_p(x))] ≈ 1/N Σ_n (x_n - E_p(x))^T (x_n - E_p(x))
+    tr_Cx = torch.einsum("ij,ij->", x_centered, x_centered) / x.shape[0]
+    centering_loss = (x_mean**2).sum()  # ||E_p(x) x_i||^2
+    r = x.shape[-1]  # ||I||_F^2 = r
+    reg = Cx_fro_2 - 2 * tr_Cx + r + 2 * centering_loss
+    return reg
 
 
 def orthn_fro_reg(x: Tensor) -> Tensor:
