@@ -8,21 +8,23 @@ from escnn.group import Representation
 def invariant_orthogonal_projector(rep_X: Representation) -> torch.Tensor:
     r"""Computes the orthogonal projection to the invariant subspace.
 
-    The representation `rep_X` is transformed to the spectral basis using the change of basis matrix `Q`:
+    The input representation :math:`\rho_{\mathcal{X}}: \mathbb{G} \mapsto \mathbb{G}\mathbb{L}(\mathcal{X})` is transformed to the spectral basis given by:
 
     .. math::
-        rep_X = Q (\bigoplus_i^n \\hat{\rho}_i) Q^T
+        \rho_\mathcal{X} = \mathbf{Q} \left( \bigoplus_{i\in[1,n]} \hat{\rho}_i \right) \mathbf{Q}^T
+
+    where :math:`\hat{\rho}_i` denotes an instance of one of the irreducible representations of the group, and :math:`\mathbf{Q}: \mathcal{X} \mapsto \mathcal{X}` is the orthogonal change of basis from the spectral basis to the original basis.
 
     The projection is performed by:
-        1. Change basis to representation spectral basis (exposing signals per irrep).
-        2. Zero out all signals on irreps that are not trivial.
-        3. Map back to original basis set.
+        1. Changing the basis to the representation spectral basis (exposing signals per irrep).
+        2. Zeroing out all signals on irreps that are not trivial.
+        3. Mapping back to the original basis set.
 
     Args:
         rep_X (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
 
     Returns:
-        torch.Tensor: The orthogonal projection matrix to the invariant subspace. Q S Q^T
+        torch.Tensor: The orthogonal projection matrix to the invariant subspace, :math:`\mathbf{Q} \mathbf{S} \mathbf{Q}^T`.
     """
     Qx_T, Qx = torch.Tensor(rep_X.change_of_basis_inv), torch.Tensor(rep_X.change_of_basis)
 
@@ -43,3 +45,32 @@ def invariant_orthogonal_projector(rep_X: Representation) -> torch.Tensor:
 
     inv_projector = Qx @ S @ Qx_T
     return inv_projector
+
+
+def isotypic_signal2irreducible_subspaces(X: torch.Tensor, repX: Representation):
+    r"""Given a random variable in an isotypic subspace, flatten the r.v. into G-irreducible subspaces.
+
+    Given a signal of shape :math:`(n, m_x \cdot d)` where :math:`n` is the number of samples, :math:`m_x` the multiplicity of the irrep in :math:`X`, and :math:`d` the dimension of the irrep.
+    :math:`X = [x_1, \ldots, x_n]` and :math:`x_i = [x_{i_{11}}, \ldots, x_{i_{1d}}, x_{i_{21}}, \ldots, x_{i_{2d}}, \ldots, x_{i_{m_x1}}, \ldots, x_{i_{m_xd}}]`
+
+    This function returns the signal :math:`Z` of shape :math:`(n \cdot d, m_x)` where each column represents the flattened signal of a G-irreducible subspace.
+    :math:`Z[:, k] = [x_{1_{k1}}, \ldots, x_{1_{kd}}, x_{2_{k1}}, \ldots, x_{2_{kd}}, \ldots, x_{n_{k1}}, \ldots, x_{n_{kd}}]`
+
+    Args:
+        X (torch.Tensor): Shape :math:`(..., n, m_x \cdot d)` where :math:`n` is the number of samples and :math:`m_x` the multiplicity of the irrep in :math:`X`.
+        repX (escnn.nn.Representation): Representation in the isotypic basis of a single type of irrep.
+
+    Returns:
+        torch.Tensor: Shape :math:`(n \cdot d, m_x)` where each column represents the flattened signal of an irreducible subspace.
+    """
+    assert len(repX._irreps_multiplicities) == 1, (
+        "Random variable is assumed to be in a single isotypic subspace."
+    )
+    irrep_id = repX.irreps[0]
+    irrep_dim = repX.group.irrep(*irrep_id).size
+    mk = repX._irreps_multiplicities[irrep_id]  # Multiplicity of the irrep in X
+
+    Z = X.view(-1, mk, irrep_dim).permute(0, 2, 1).reshape(-1, mk)
+
+    assert Z.shape == (X.shape[0] * irrep_dim, mk)
+    return Z
