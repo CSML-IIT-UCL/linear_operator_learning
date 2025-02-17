@@ -96,49 +96,18 @@ def kl_contrastive_loss(X: Tensor, Y: Tensor) -> Tensor:
 # Regularizers______________________________________________________________________________________
 
 
-def orthonormality_regularization(x, permutation=None):
-    r"""Computes orthonormality and centering regularization for a vector valued random variable.
+def orthonormal_fro_reg(x: Tensor) -> Tensor:
+    r"""Orthonormality regularization with Frobenious norm of covariance of `x`.
 
-    Given a dataset of realizations of the random variable x, the orthonormality regularization term penalizes:
-     1. the linear dependency between dimensions of the random variable (orthogonality),
-     2. the deviation of the variance of each dimension from 1 (normalization), and
-     3. the deviation of the mean of each dimension from 0 (centering).
+    Given a batch of realizations of `x`, the orthonormality regularization term penalizes:
 
-    Formally the orthonormality regularization term is defined as:
-    .. math::
-
-        \begin{align}
-            \| \mathbf{V}_x - \mathbf{I} \|_F^2 &= \| \mathbf{C}_x - \mathbf{I} \|_F^2 + 2 \| \mathbb{E}_p(x) x \|^2 \\
-            &= \text{tr}(\mathbf{C}^2_{x}) - 2 \text{tr}(\mathbf{C}_x) + r + 2 \| \mathbb{E}_p(x) x \|^2
-        \end{align}
-    Where :math:`\mathbf{V}_x \in \mathbb{R}^{r+1 \times r+1}` is the un-centered covariance matrix. :math:`\mathbf{C}_x \in \mathbb{R}^{r \times r}` is the centered covariance matrix of
-    :math:`x`. That is, :math:`[\mathbf{V}_x]_{ij} = \mathbb{E}_p(x) x_i x_j` and :math:`[\mathbf{C}_x]_{ij} = \mathbb{E}_p(x) (x_i - \mathbb{E}_p(x) x_i) (x_j - \mathbb{E}_p(x) x_j)`.
-
-    Args:
-        x (Tensor): Realizations of the random variable :math:`x`, of shape :math:`(n\_samples, r)`.
-        permutation (Tensor, optional): Permutation of the :math:`n\_samples` used to compute unbiased estimation of :math:`\| \mathbf{C}_x \|_F^2`.
-
-    Returns:
-        Tensor: Unbiased estimation of the orthonormality regularization term.
-    """
-    x_mean = x.mean(dim=0, keepdim=True)
-    x_centered = x - x_mean
-    # ||Cx||_F^2 = E_(x,x')~p(x) [((x - E_p(x) x)^T (x' - E_p(x) x'))^2] = tr(Cx^2)
-    Cx_fro_2 = cov_norm_squared_unbiased(x_centered, permutation=permutation)
-    # tr(Cx) = E_p(x) [(x - E_p(x))^T (x - E_p(x))] ≈ 1/N Σ_n (x_n - E_p(x))^T (x_n - E_p(x))
-    tr_Cx = torch.einsum("ij,ij->", x_centered, x_centered) / x.shape[0]
-    centering_loss = (x_mean**2).sum()  # ||E_p(x) x_i||^2
-    r = x.shape[-1]  # ||I||_F^2 = r
-    reg = Cx_fro_2 - 2 * tr_Cx + r + 2 * centering_loss
-    return reg
-
-
-def orthn_fro_reg(x: Tensor) -> Tensor:
-    r"""Orthonormality regularization with Frobenious norm of covariance of x.
+    1. Orthogonality: Linear dependencies among dimensions,
+    2. Normality: Deviations of each dimension’s variance from 1,
+    3. Centering: Deviations of each dimension’s mean from 0.
 
     .. math::
 
-       \frac{1}{D}\lVert C_X - I\rVert_F^2 =  \frac{1}{D}\text{Tr}((C_X-I)^2).
+        \frac{1}{D} \| \mathbf{C}_{X} - I \|_F^2 +  2 \| \mathbb{E}_{X} x \|^2 = \frac{1}{D} (\text{tr}(\mathbf{C}^2_{X}) - 2 \text{tr}(\mathbf{C}_{X}) + D + 2 \| \mathbb{E}_{X} x \|^2)
 
     Args:
         x (Tensor): Input features.
@@ -146,15 +115,20 @@ def orthn_fro_reg(x: Tensor) -> Tensor:
     Shape:
         ``x``: :math:`(N, D)`, where :math:`N` is the batch size and :math:`D` is the number of features.
     """
-    cov = covariance(x)  # shape: (D, D)
-    eps = torch.finfo(cov.dtype).eps * cov.shape[0]
-    vals_x = torch.linalg.eigvalsh(cov)
-    vals_x = torch.where(vals_x > eps, vals_x, eps)
-    reg = torch.mean((vals_x - 1.0) ** 2)
-    return reg
+    x_mean = x.mean(dim=0, keepdim=True)
+    x_centered = x - x_mean
+    # As ||Cx||_F^2 = E_(x,x')~p(x) [((x - E_p(x) x)^T (x' - E_p(x) x'))^2] = tr(Cx^2), involves the product of
+    # covariances, unbiased estimation of this term requires the use of U-statistics
+    Cx_fro_2 = cov_norm_squared_unbiased(x_centered)
+    # tr(Cx) = E_p(x) [(x - E_p(x))^T (x - E_p(x))] ≈ 1/N Σ_n (x_n - E_p(x))^T (x_n - E_p(x))
+    tr_Cx = torch.einsum("ij,ij->", x_centered, x_centered) / x.shape[0]
+    centering_loss = (x_mean**2).sum()  # ||E_p(x) x||^2
+    D = x.shape[-1]  # ||I||_F^2 = D
+    reg = Cx_fro_2 - 2 * tr_Cx + D + 2 * centering_loss
+    return reg / D
 
 
-def orthn_logfro_reg(x: Tensor) -> Tensor:
+def orthonormal_logfro_reg(x: Tensor) -> Tensor:
     r"""Orthonormality regularization with log-Frobenious norm of covariance of x by :footcite:t:`Kostic2023DPNets`.
 
     .. math::
@@ -171,5 +145,8 @@ def orthn_logfro_reg(x: Tensor) -> Tensor:
     eps = torch.finfo(cov.dtype).eps * cov.shape[0]
     vals_x = torch.linalg.eigvalsh(cov)
     vals_x = torch.where(vals_x > eps, vals_x, eps)
-    reg = torch.mean(-torch.log(vals_x) + vals_x * (vals_x - 1.0))
+    orth_loss = torch.mean(-torch.log(vals_x) + vals_x * (vals_x - 1.0))
+    # TODO: Centering like this?
+    centering_loss = (x.mean(0, keepdim=True) ** 2).sum()  # ||E_p(x) x||^2
+    reg = orth_loss + 2 * centering_loss
     return reg
