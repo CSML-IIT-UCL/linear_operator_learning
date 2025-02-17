@@ -23,14 +23,15 @@ class _RegularizedLoss(Module):
     """
 
     def __init__(
-        self, gamma: float, regularizer: Literal["orthn_fro", "orthn_logfro"]
+        self, gamma: float, regularizer: Literal["orthnornal_fro", "orthnornal_logfro"]
     ) -> None:  # TODO: Automatically determine 'gamma' from dim_x and dim_y
+        super().__init__()
         self.gamma = gamma
 
-        if regularizer == "orthn_fro":
-            self.regularizer = F.orthn_fro_reg
-        elif regularizer == "orthn_logfro":
-            self.regularizer = F.orthn_logfro_reg
+        if regularizer == "orthonormal_fro":
+            self.regularizer = F.orthonormal_fro_reg
+        elif regularizer == "orthonormal_logfro":
+            self.regularizer = F.orthonormal_logfro_reg
         else:
             raise NotImplementedError(f"Regularizer {regularizer} not supported!")
 
