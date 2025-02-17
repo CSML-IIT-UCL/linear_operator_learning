@@ -20,9 +20,15 @@ Inference
 
 .. autofunction:: linear_operator_learning.kernel.predict
 
+.. autofunction:: linear_operator_learning.kernel.predict_physics_informed
+
 .. autofunction:: linear_operator_learning.kernel.eig
 
+.. autofunction:: linear_operator_learning.kernel.eig_physics_informed
+
 .. autofunction:: linear_operator_learning.kernel.evaluate_eigenfunction
+
+.. autofunction:: linear_operator_learning.kernle.evaluate_right_eigenfunction_physics_informed
 
 .. _rrr:
 Reduced Rank
@@ -32,6 +38,8 @@ Reduced Rank
 .. autofunction:: linear_operator_learning.kernel.nystroem_reduced_rank
 
 .. autofunction:: linear_operator_learning.kernel.rand_reduced_rank
+
+.. autofunction:: linear_operator_learning.kernel.physics_informed_reduced_rank_regression
 
 .. _pcr:
 Principal Component Regression
@@ -59,5 +67,16 @@ Linear Algebra Utilities
 .. autofunction:: linear_operator_learning.kernel.linalg.stable_topk
 
 .. autofunction:: linear_operator_learning.kernel.linalg.add_diagonal_
+
+
+.. _kernel_derivatives:
+Kernel Derivatives
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: linear_operator_learning.kernel.return_phi_dphi
+
+.. autofunction:: linear_operator_learning.kernel.return_dphi_dphi
+
+Bibliography
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. footbibliography::

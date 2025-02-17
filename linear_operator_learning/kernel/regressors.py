@@ -14,11 +14,13 @@ from linear_operator_learning.kernel.structs import FitResult
 
 __all__ = [
     "predict",
+    "predict_physics_informed",
     "pcr",
     "nystroem_pcr",
     "reduced_rank",
     "nystroem_reduced_rank",
     "rand_reduced_rank",
+    "physics_informed_reduced_rank_regression",
 ]
 
 
@@ -72,7 +74,7 @@ def predict_physics_informed(
     Args:
         eig_result: EigResult object containing reduced rank regression results
         kernel_obs (np.ndarray): kernel matrix of the initial conditions and the training set
-        dKernel_obs (np.ndarray): derivative of the kernel between the initial condition and the training set: dK_X_{i,j} = <\phi(x_i),d\phi(x_j)> (matrix N in the paper)
+        dKernel_obs (np.ndarray): (matrix N in the paper) derivative of the kernel between the initial condition and the training set: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
         obs_train_X (ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
         shift (float): shift parameter of the resolvent
         time (float): time at which we want to estimate the prediction
@@ -80,7 +82,7 @@ def predict_physics_informed(
     Shape:
         ``kernel_obs``: :math:`(N, N)`, where :math:`N` is the number of training data.
 
-        ``dkernel_obs``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math: `d` is the dimensionality of the input data.
+        ``dkernel_obs``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math:`d` is the dimensionality of the input data.
 
         ``obs_train_X``: :math:`(N, *)`, where :math:`*` is the shape of the observable.
 
@@ -446,8 +448,8 @@ def physics_informed_reduced_rank_regression(
 
     Args:
         kernel_X (np.ndarray): kernel matrix of the training data
-        dKernel_X (np.ndarray): derivative of the kernel: dK_X_{i,j} = <\phi(x_i),d\phi(x_j)> (matrix N in the paper)
-        dKernel_dX (np.ndarray):  derivative of the kernel dK_dX_{i,j} = <d\phi(x_i),d\phi(x_j)> (matrix M in the paper)
+        dKernel_X (np.ndarray): (matrix N in the paper) derivative of the kernel: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
+        dKernel_dX (np.ndarray):  (matrix M in the paper) derivative of the kernel :math:`M_{(l-1)n+i,(k-1)n+j} = \langle d_l\phi(x_i),d_k\phi(x_j) \rangle`
         shift (float): shift parameter of the resolvent
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter
         rank (int): Rank of the estimator
@@ -455,8 +457,9 @@ def physics_informed_reduced_rank_regression(
     Shape:
         ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
 
-        ``dkernel_X``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math: `d` is the dimensionality of the input data.
-        ``dkernel_dX``: :math:`((d+1)N, (d+1)N)`. where :math:`N` is the number of training data amd :math: `d` is the dimensionality of the input data.
+        ``dkernel_X``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math:`d` is the dimensionality of the input data.
+
+        ``dkernel_dX``: :math:`((d+1)N, (d+1)N)`. where :math:`N` is the number of training data amd :math:`d` is the dimensionality of the input data.
     Returns: FitResult structure containing `U` and `V` matrices
     """
     npts = kernel_X.shape[0]

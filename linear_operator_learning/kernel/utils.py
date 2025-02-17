@@ -6,6 +6,11 @@ import numpy as np
 from numpy import ndarray
 from scipy.spatial.distance import pdist
 
+__all__ = [
+    "return_phi_dphi",
+    "return_dphi_dphi",
+]
+
 
 def topk(vec: ndarray, k: int):
     """Get the top k values from a Numpy array.
@@ -65,20 +70,24 @@ def return_phi_dphi(
     sigma: float,
     friction: np.ndarray,
 ):
-    r"""Returns the matrix :math: `N_{i,(k-1)n+j}=<\phi(x_i),d_k\phi(x_j)>` (matrix :math:`N` in the paper) only for
+    r"""Returns the matrix :math:`N_{i,(k-1)n+j}=<\phi(x_i),d_k\phi(x_j)>` (matrix :math:`N` in the paper) only for
     a GAUSSIAN kernel
     where :math:`i = 1,\dots n, k=1, \dots d, j=1,\dots n`
-    and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system
+    and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system.
+
     Args:
         kernel_X (np.ndarray): kernel matrix of the training data
         X (np.ndarray): training data
         sigma (float): length scale of the GAUSSIAN kernel
         friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in the paper
     Shape:
-        ``kernel_X`` `: :math:`(N, N)`, where :math:`N` is the number of training data.
-        ``X``: :math: `(N,d)`  where :math:`N` is the number of training data and `d` the dimensionality of the system.
-        ``friction``: :math: `d`  where :math:`d` is the dimensionality of the system.
-    Output: :math:`<\phi(x_i),d_k\phi(x_j)>` of shape `N,Nd`, where :math:`N` is the number of training data and :math: `d` the dimension of the system.
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+
+        ``X``: :math:`(N,d)`  where :math:`N` is the number of training data and :math:`d` the dimensionality of the system.
+
+        ``friction``: :math:`d`  where :math:`d` is the dimensionality of the system.
+
+    Output: :math:`<\phi(x_i),d_k\phi(x_j)>` of shape `N,Nd`, where :math:`N` is the number of training data and :math:`d` the dimension of the system.
     """  # noqa: D205
     difference = X[:, np.newaxis, :] - X[np.newaxis, :, :]
     n = difference.shape[0]
@@ -94,20 +103,21 @@ def return_phi_dphi(
 
 
 def return_dphi_dphi(kernel_X: np.ndarray, X: np.ndarray, sigma: float, friction: np.ndarray):
-    r"""Returns the matrix :math: `M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` (matrix :math:`n` in the paper) only for
+    r"""Returns the matrix :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` (matrix :math:`M` in the paper) only for
     a GAUSSIAN kernel
     where :math:`i = 1,\dots n, k=1, \dots d, j=1,\dots n, l=1, \dots d`
-    and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system
+    and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system.
+
     Args:
         kernel_X (np.ndarray): kernel matrix of the training data
         X (np.ndarray): training data
         sigma (float): length scale of the GAUSSIAN kernel
         friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in the paper
     Shape:
-        ``kernel_X`` `: :math:`(N, N)`, where :math:`N` is the number of training data.
-        ``X``: :math: `(N,d)`  where :math:`N` is the number of training data and `d` the dimensionality of the system.
-        ``friction``: :math: `d`  where :math:`d` is the dimensionality of the system
-    Returns: :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` of shape `N,Nd`, where :math:`N` is the number of training data and :math: `d` the dimension of the system.
+        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+        ``X``: :math:`(N,d)`  where :math:`N` is the number of training data and `d` the dimensionality of the system.
+        ``friction``: :math:`d`  where :math:`d` is the dimensionality of the system
+    Returns: :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` of shape `N,Nd`, where :math:`N` is the number of training data and :math:`d` the dimension of the system.
     """  # noqa: D205
     difference = X[:, np.newaxis, :] - X[np.newaxis, :, :]
 

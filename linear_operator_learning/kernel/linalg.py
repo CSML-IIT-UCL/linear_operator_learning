@@ -10,7 +10,12 @@ from numpy import ndarray
 from linear_operator_learning.kernel.structs import EigResult, FitResult
 from linear_operator_learning.kernel.utils import sanitize_complex_conjugates, topk
 
-__all__ = ["eig", "evaluate_eigenfunction"]
+__all__ = [
+    "eig",
+    "evaluate_eigenfunction",
+    "eig_physics_informed",
+    "evaluate_right_eigenfunction_physics_informed",
+]
 
 
 def eig(
@@ -131,12 +136,13 @@ def evaluate_right_eigenfunction_physics_informed(
 
     Args:
         kernel_X (np.ndarray): kernel matrix of the training data
-        dKernel_X (np.ndarray): derivative of the kernel: dK_X_{i,j} = <\phi(x_i),d\phi(x_j)> (matrix N in the paper)
+        dKernel_X (np.ndarray): (matrix N in the paper) derivative of the kernel: N{i,(k-1)n+j} = <\phi(x_i),d_k\phi(x_j)>
         eig_result: EigResult object containing eigendecomposition results
         shift (float): shift parameter of the resolvent
 
     Shape:
         ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
+
         ``dkernel_X``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math: `d` is the dimensionality of the input data.
 
     Returns:
