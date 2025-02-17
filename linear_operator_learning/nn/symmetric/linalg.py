@@ -37,9 +37,8 @@ def invariant_orthogonal_projector(rep_X: Representation) -> torch.Tensor:
         # Get dimensions of the irrep in the original basis
         irrep_dims = range(cum_dim, cum_dim + irrep.size)
         irreps_dimension.append(irrep_dims)
-        if (
-            irrep_id == rep_X.group.trivial_representation.id
-        ):  # this dimension is associated with a trivial irrep
+        if irrep_id == rep_X.group.trivial_representation.id:
+            # this dimension is associated with a trivial irrep
             S[irrep_dims, irrep_dims] = 1
         cum_dim += irrep.size
 
