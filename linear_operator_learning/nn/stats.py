@@ -1,9 +1,10 @@
 """Statistics utilities for multi-variate random variables."""
 
 import torch
+from torch import Tensor
 
 
-def cross_cov_norm_squared_unbiased(x: torch.Tensor, y: torch.Tensor, permutation=None):
+def cross_cov_norm_squared_unbiased(x: Tensor, y: Tensor, permutation=None):
     r"""Compute the unbiased estimation of :math:`\|\mathbf{C}_{xy}\|_F^2` from a batch of samples, using U-statistics.
 
     Given the Covariance matrix :math:`\mathbf{C}_{xy} = \mathbb{E}_p(x,y) [x^T y]`, this function computes an unbiased estimation
@@ -22,12 +23,12 @@ def cross_cov_norm_squared_unbiased(x: torch.Tensor, y: torch.Tensor, permutatio
     The random variable is assumed to be centered.
 
     Args:
-        x (torch.Tensor): (n_samples, r_x) Centered realizations of a random variable x = [x_1, ..., x_{r_x}].
-        y (torch.Tensor): (n_samples, r_y) Centered realizations of a random variable y = [y_1, ..., y_{r_y}].
-        permutation (torch.Tensor, optional): List of integer indices of shape (n_samples,) used to permute the samples.
+        x (Tensor): Centered realizations of a random variable `x` of shape (N, D_x).
+        y (Tensor): Centered realizations of a random variable `y` of shape (N, D_y).
+        permutation (Tensor, optional): List of integer indices of shape (n_samples,) used to permute the samples.
 
     Returns:
-        torch.Tensor: Unbiased estimation of :math:`\|\mathbf{C}_{xy}\|_F^2`.
+        Tensor: Unbiased estimation of :math:`\|\mathbf{C}_{xy}\|_F^2` using U-statistics.
     """
     n_samples = x.shape[0]
 
@@ -43,7 +44,7 @@ def cross_cov_norm_squared_unbiased(x: torch.Tensor, y: torch.Tensor, permutatio
     return cov_fro_norm
 
 
-def cov_norm_squared_unbiased(x: torch.Tensor, permutation=None):
+def cov_norm_squared_unbiased(x: Tensor, permutation=None):
     r"""Compute the unbiased estimation of :math:`\|\mathbf{C}_x\|_F^2` from a batch of samples.
 
     Given the Covariance matrix :math:`\mathbf{C}_x = \mathbb{E}_p(x) [x^T x]`, this function computes an unbiased estimation
@@ -57,10 +58,10 @@ def cov_norm_squared_unbiased(x: torch.Tensor, permutation=None):
         The random variable is assumed to be centered.
 
     Args:
-        x (torch.Tensor): (n_samples, r) Centered realizations of a random variable x = [x_1, ..., x_r].
-        permutation (torch.Tensor, optional): List of integer indices of shape (n_samples,) used to permute the samples.
+        x (Tensor): (n_samples, r) Centered realizations of a random variable x = [x_1, ..., x_r].
+        permutation (Tensor, optional): List of integer indices of shape (n_samples,) used to permute the samples.
 
     Returns:
-        torch.Tensor: Unbiased estimation of :math:`\|\mathbf{C}_x\|_F^2`.
+        Tensor: Unbiased estimation of :math:`\|\mathbf{C}_x\|_F^2` using U-statistics.
     """
     return cross_cov_norm_squared_unbiased(x=x, y=x, permutation=permutation)
