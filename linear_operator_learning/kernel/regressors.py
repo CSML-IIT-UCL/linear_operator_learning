@@ -20,7 +20,7 @@ __all__ = [
     "reduced_rank",
     "nystroem_reduced_rank",
     "rand_reduced_rank",
-    "physics_informed_reduced_rank_regression",
+    "reduced_rank_regression_physics_informed",
 ]
 
 
@@ -436,7 +436,7 @@ def rand_reduced_rank(
     return result
 
 
-def physics_informed_reduced_rank_regression(
+def reduced_rank_regression_physics_informed(
     kernel_X: np.ndarray,  # kernel matrix of the training data
     dKernel_X: np.ndarray,  # derivative of the kernel: dK_X_{i,j} = <\phi(x_i),d\phi(x_j)> (matrix N in the paper)
     dKernel_dX: np.ndarray,  # derivative of the kernel dK_dX_{i,j} = <d\phi(x_i),d\phi(x_j)>
