@@ -69,12 +69,12 @@ def predict_physics_informed(
     shift: float,
     time: float,
 ) -> np.ndarray:
-    r"""Predicts future states using kernel matrices and fitted results.
+    r"""Predicts future states using kernel matrices and fitted results using a physics informed generator from :footcite:t:`kostic2024learning`.
 
     Args:
         eig_result: EigResult object containing reduced rank regression results
         kernel_obs (np.ndarray): kernel matrix of the initial conditions and the training set
-        dKernel_obs (np.ndarray): (matrix N in the paper) derivative of the kernel between the initial condition and the training set: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
+        dKernel_obs (np.ndarray): (matrix N in :footcite:t:`kostic2024learning`) derivative of the kernel between the initial condition and the training set: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
         obs_train_X (ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
         shift (float): shift parameter of the resolvent
         time (float): time at which we want to estimate the prediction
@@ -444,12 +444,12 @@ def physics_informed_reduced_rank_regression(
     tikhonov_reg: float,  # Tikhonov (ridge) regularization parameter, can be 0,
     rank: int,
 ):  # Rank of the estimator)
-    r"""Fits the physics informed Reduced Rank Estimator.
+    r"""Fits the physics informed Reduced Rank Estimator from :footcite:t:`kostic2024learning`.
 
     Args:
         kernel_X (np.ndarray): kernel matrix of the training data
-        dKernel_X (np.ndarray): (matrix N in the paper) derivative of the kernel: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
-        dKernel_dX (np.ndarray):  (matrix M in the paper) derivative of the kernel :math:`M_{(l-1)n+i,(k-1)n+j} = \langle d_l\phi(x_i),d_k\phi(x_j) \rangle`
+        dKernel_X (np.ndarray): (matrix N in :footcite:t:`kostic2024learning`) derivative of the kernel: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
+        dKernel_dX (np.ndarray):  (matrix M in :footcite:t:`kostic2024learning`) derivative of the kernel :math:`M_{(l-1)n+i,(k-1)n+j} = \langle d_l\phi(x_i),d_k\phi(x_j) \rangle`
         shift (float): shift parameter of the resolvent
         tikhonov_reg (float): Tikhonov (ridge) regularization parameter
         rank (int): Rank of the estimator

@@ -70,7 +70,7 @@ def return_phi_dphi(
     sigma: float,
     friction: np.ndarray,
 ):
-    r"""Returns the matrix :math:`N_{i,(k-1)n+j}=<\phi(x_i),d_k\phi(x_j)>` (matrix :math:`N` in the paper) only for
+    r"""Returns the matrix :math:`N_{i,(k-1)n+j}=<\phi(x_i),d_k\phi(x_j)>` (matrix :math:`N` :footcite:t:`kostic2024learning`) only for
     a GAUSSIAN kernel
     where :math:`i = 1,\dots n, k=1, \dots d, j=1,\dots n`
     and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system.
@@ -79,7 +79,7 @@ def return_phi_dphi(
         kernel_X (np.ndarray): kernel matrix of the training data
         X (np.ndarray): training data
         sigma (float): length scale of the GAUSSIAN kernel
-        friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in the paper
+        friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in :footcite:t:`kostic2024learning`
     Shape:
         ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
 
@@ -103,7 +103,7 @@ def return_phi_dphi(
 
 
 def return_dphi_dphi(kernel_X: np.ndarray, X: np.ndarray, sigma: float, friction: np.ndarray):
-    r"""Returns the matrix :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` (matrix :math:`M` in the paper) only for
+    r"""Returns the matrix :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` (matrix :math:`M` in :footcite:t:`kostic2024learning`) only for
     a GAUSSIAN kernel
     where :math:`i = 1,\dots n, k=1, \dots d, j=1,\dots n, l=1, \dots d`
     and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system.
@@ -112,7 +112,7 @@ def return_dphi_dphi(kernel_X: np.ndarray, X: np.ndarray, sigma: float, friction
         kernel_X (np.ndarray): kernel matrix of the training data
         X (np.ndarray): training data
         sigma (float): length scale of the GAUSSIAN kernel
-        friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in the paper
+        friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in :footcite:t:`kostic2024learning`
     Shape:
         ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
         ``X``: :math:`(N,d)`  where :math:`N` is the number of training data and `d` the dimensionality of the system.

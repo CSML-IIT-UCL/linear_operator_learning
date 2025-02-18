@@ -73,7 +73,7 @@ def eig_physics_informed(
     fit_result: FitResult,
     shift: float,
 ) -> EigResult:
-    """Computes the eigendecomposition of the infinitesimal generator operator.
+    """Computes the eigendecomposition of the infinitesimal generator operator (see :footcite:t:`kostic2024learning`).
 
     Args:
         fit_result (FitResult): Fit result as defined in ``operator_learning.structs``.
@@ -132,11 +132,11 @@ def evaluate_eigenfunction(
 def evaluate_right_eigenfunction_physics_informed(
     kernel_X: np.ndarray, dKernel_X: np.ndarray, eig_result: np.ndarray, shift: float
 ):
-    r"""Fits the physics informed Reduced Rank Estimator.
+    r"""Evaluates the right eigenfunction of the physics informed generator ( see :footcite:t:`kostic2024learning`).
 
     Args:
         kernel_X (np.ndarray): kernel matrix of the training data
-        dKernel_X (np.ndarray): (matrix N in the paper) derivative of the kernel: N{i,(k-1)n+j} = <\phi(x_i),d_k\phi(x_j)>
+        dKernel_X (np.ndarray): (matrix N in :footcite:t:`kostic2024learning`) derivative of the kernel: N{i,(k-1)n+j} = <\phi(x_i),d_k\phi(x_j)>
         eig_result: EigResult object containing eigendecomposition results
         shift (float): shift parameter of the resolvent
 
