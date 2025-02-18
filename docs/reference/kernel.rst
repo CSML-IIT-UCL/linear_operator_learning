@@ -39,7 +39,7 @@ Reduced Rank
 
 .. autofunction:: linear_operator_learning.kernel.rand_reduced_rank
 
-.. autofunction:: linear_operator_learning.kernel.physics_informed_reduced_rank_regression
+.. autofunction:: linear_operator_learning.kernel.reduced_rank_regression_physics_informed
 
 .. _pcr:
 Principal Component Regression
