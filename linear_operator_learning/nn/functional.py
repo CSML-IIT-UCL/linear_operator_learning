@@ -107,7 +107,7 @@ def orthonormal_fro_reg(x: Tensor) -> Tensor:
 
     .. math::
 
-        \| \mathbf{C}_{X} - I \|_F^2 +  2 \| \mathbb{E}_{X} x \|^2 = \text{tr}(\mathbf{C}^2_{X}) - 2 \text{tr}(\mathbf{C}_{X}) + D + 2 \| \mathbb{E}_{X} x \|^2
+        \frac{1}{D} \| \mathbf{C}_{X} - I \|_F^2 +  2 \| \mathbb{E}_{X} x \|^2 = \frac{1}{D} (\text{tr}(\mathbf{C}^2_{X}) - 2 \text{tr}(\mathbf{C}_{X}) + D + 2 \| \mathbb{E}_{X} x \|^2)
 
     Args:
         x (Tensor): Input features.
@@ -125,7 +125,7 @@ def orthonormal_fro_reg(x: Tensor) -> Tensor:
     centering_loss = (x_mean**2).sum()  # ||E_p(x) x||^2
     D = x.shape[-1]  # ||I||_F^2 = D
     reg = Cx_fro_2 - 2 * tr_Cx + D + 2 * centering_loss
-    return reg
+    return reg / D
 
 
 def orthonormal_logfro_reg(x: Tensor) -> Tensor:
