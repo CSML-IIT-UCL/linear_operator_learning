@@ -3,9 +3,10 @@
 # Created by Daniel Ordoñez (daniels.ordonez@gmail.com) at 13/02/25
 import torch
 from escnn.group import Representation
+from torch import Tensor
 
 
-def invariant_orthogonal_projector(rep_X: Representation) -> torch.Tensor:
+def invariant_orthogonal_projector(rep_X: Representation) -> Tensor:
     r"""Computes the orthogonal projection to the invariant subspace.
 
     The input representation :math:`\rho_{\mathcal{X}}: \mathbb{G} \mapsto \mathbb{G}\mathbb{L}(\mathcal{X})` is transformed to the spectral basis given by:
@@ -24,9 +25,9 @@ def invariant_orthogonal_projector(rep_X: Representation) -> torch.Tensor:
         rep_X (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
 
     Returns:
-        torch.Tensor: The orthogonal projection matrix to the invariant subspace, :math:`\mathbf{Q} \mathbf{S} \mathbf{Q}^T`.
+        Tensor: The orthogonal projection matrix to the invariant subspace, :math:`\mathbf{Q} \mathbf{S} \mathbf{Q}^T`.
     """
-    Qx_T, Qx = torch.Tensor(rep_X.change_of_basis_inv), torch.Tensor(rep_X.change_of_basis)
+    Qx_T, Qx = Tensor(rep_X.change_of_basis_inv), Tensor(rep_X.change_of_basis)
 
     # S is an indicator of which dimension (in the irrep-spectral basis) is associated with a trivial irrep
     S = torch.zeros((rep_X.size, rep_X.size))
@@ -46,7 +47,7 @@ def invariant_orthogonal_projector(rep_X: Representation) -> torch.Tensor:
     return inv_projector
 
 
-def isotypic_signal2irreducible_subspaces(X: torch.Tensor, repX: Representation):
+def isotypic_signal2irreducible_subspaces(X: Tensor, repX: Representation):
     r"""Given a random variable in an isotypic subspace, flatten the r.v. into G-irreducible subspaces.
 
     Given a signal of shape :math:`(n, m_x \cdot d)` where :math:`n` is the number of samples, :math:`m_x` the multiplicity of the irrep in :math:`X`, and :math:`d` the dimension of the irrep.
@@ -56,11 +57,11 @@ def isotypic_signal2irreducible_subspaces(X: torch.Tensor, repX: Representation)
     :math:`Z[:, k] = [x_{1_{k1}}, \ldots, x_{1_{kd}}, x_{2_{k1}}, \ldots, x_{2_{kd}}, \ldots, x_{n_{k1}}, \ldots, x_{n_{kd}}]`
 
     Args:
-        X (torch.Tensor): Shape :math:`(..., n, m_x \cdot d)` where :math:`n` is the number of samples and :math:`m_x` the multiplicity of the irrep in :math:`X`.
+        X (Tensor): Shape :math:`(..., n, m_x \cdot d)` where :math:`n` is the number of samples and :math:`m_x` the multiplicity of the irrep in :math:`X`.
         repX (escnn.nn.Representation): Representation in the isotypic basis of a single type of irrep.
 
     Returns:
-        torch.Tensor: Shape :math:`(n \cdot d, m_x)` where each column represents the flattened signal of an irreducible subspace.
+        Tensor: Shape :math:`(n \cdot d, m_x)` where each column represents the flattened signal of an irreducible subspace.
     """
     assert len(repX._irreps_multiplicities) == 1, (
         "Random variable is assumed to be in a single isotypic subspace."

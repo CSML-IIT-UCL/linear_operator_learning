@@ -195,11 +195,11 @@ def whitening(u: Tensor, v: Tensor) -> tuple:
 
 # Sorting and parsing
 class TopKReturnType(NamedTuple):  # noqa: D101
-    values: torch.Tensor
-    indices: torch.Tensor
+    values: Tensor
+    indices: Tensor
 
 
-def topk(vec: torch.Tensor, k: int):  # noqa: D103
+def topk(vec: Tensor, k: int):  # noqa: D103
     assert vec.ndim == 1, "'vec' must be a 1D array"
     assert k > 0, "k should be greater than 0"
     sort_perm = torch.flip(torch.argsort(vec), dims=[0])  # descending order
