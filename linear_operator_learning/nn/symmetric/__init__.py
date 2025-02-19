@@ -1,3 +1,8 @@
 """Utilities of symmetric random variables and vector spaces with known group representations."""
 
-# TODO: Make optional dependency escnn and symm_torch.
+try:
+    import symm_torch
+except ImportError as e:
+    raise ImportError(
+        "Please install optional dependencies for symmetries: `pip install 'linear-operator-learning[symm]'`"
+    ) from e

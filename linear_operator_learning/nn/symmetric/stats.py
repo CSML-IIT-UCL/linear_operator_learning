@@ -1,5 +1,7 @@
 """Statistics utilities for symmetric random variables with known group representations."""
 
+from __future__ import annotations
+
 import numpy as np
 import torch
 from escnn.group import Representation
