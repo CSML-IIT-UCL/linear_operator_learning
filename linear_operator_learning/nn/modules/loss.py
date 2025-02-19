@@ -2,7 +2,6 @@
 
 from typing import Literal
 
-import torch
 from torch import Tensor
 from torch.nn import Module
 
@@ -23,7 +22,7 @@ class _RegularizedLoss(Module):
     """
 
     def __init__(
-        self, gamma: float, regularizer: Literal["orthnornal_fro", "orthnornal_logfro"]
+        self, gamma: float, regularizer: Literal["orthonormal_fro", "orthonormal_logfro"]
     ) -> None:  # TODO: Automatically determine 'gamma' from dim_x and dim_y
         super().__init__()
         self.gamma = gamma
