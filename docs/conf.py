@@ -78,6 +78,6 @@ html_sidebars = {
   "**": ["sidebar_main_nav_links.html", "sidebar_toc.html"]
 }
 
+html_favicon = "favicon.ico"
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-html_logo = "_static/logo.svg"

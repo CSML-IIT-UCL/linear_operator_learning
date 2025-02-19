@@ -1,0 +1,12 @@
+<nav class="table w-full min-w-full my-6 lg:my-8">
+<div class="sidebar-logo">
+    <a href="{{ pathto(master_doc) }}">
+    <img src="{{ pathto('_static/logo.png', 1) }}" alt="Logo" class="logo" />
+    </a>
+</div>
+{%- if theme_globaltoc_includehidden|tobool %}
+{{ toctree(titles_only=true, collapse=False, includehidden=true) }}
+{%- else %}
+{{ toctree(titles_only=true, collapse=False) }}
+{%- endif %}
+</nav>
