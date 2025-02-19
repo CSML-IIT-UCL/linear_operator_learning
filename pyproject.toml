@@ -1,6 +1,6 @@
 [project]
 name = "linear-operator-learning"
-version = "0.1.12"
+version = "0.1.13"
 description = "A package to learn linear operators"
 readme = "README.md"
 authors = [
@@ -77,7 +77,7 @@ convention = "google"
 symm-torch = { git = "https://github.com/Danfoa/symm_torch.git" }
 
 [bumpver]
-current_version = "0.1.12"
+current_version = "0.1.13"
 version_pattern = "MAJOR.MINOR.PATCH"
 
 [bumpver.file_patterns]
