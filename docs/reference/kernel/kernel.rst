@@ -1,8 +1,12 @@
 .. _kernel_reference:
-========================
-:code:`lol.kernel` namespace
-========================
+==============
+:code:`kernel`
+==============
 .. module:: linear_operator_learning.kernel
+
+.. rst-class:: lead
+
+   Kernel Methods
 
 Table of Contents
 -----------------

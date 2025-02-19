@@ -3,11 +3,11 @@
 :code:`nn.stats`
 =====================
 
-.. module:: linear_operator_learning.nn
+.. rst-class:: lead
 
-.. _nn_func_stats:
-Statistics
-~~~~~~~~~~
+   Statistics Utilities
+
+.. module:: linear_operator_learning.nn
 
 .. autofunction:: linear_operator_learning.nn.stats.covariance
 

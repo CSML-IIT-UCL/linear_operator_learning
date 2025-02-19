@@ -3,6 +3,10 @@
 :code:`nn.functional`
 =====================
 
+.. rst-class:: lead
+
+   Functional implementations
+
 .. module:: linear_operator_learning.nn
 
 Table of Contents

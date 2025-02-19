@@ -3,11 +3,11 @@
 :code:`nn.linalg`
 =====================
 
-.. module:: linear_operator_learning.nn
+.. rst-class:: lead
 
-.. _nn_func_linalg:
-Linear Algebra Utilities
-~~~~~~~~~~~~~~~~~~~~~~~~
+   Linear Algebra Utilities
+
+.. module:: linear_operator_learning.nn
 
 .. autofunction:: linear_operator_learning.nn.linalg.sqrtmh
 

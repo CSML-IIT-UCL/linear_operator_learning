@@ -3,6 +3,10 @@
 :code:`nn`
 ==========
 
+.. rst-class:: lead
+
+   Neural Network Modules
+
 .. module:: linear_operator_learning.nn
 
 Table of Contents

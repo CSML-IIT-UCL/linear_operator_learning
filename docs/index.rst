@@ -29,5 +29,5 @@ If you want to contibute to the project, please follow :ref:`these guidelines <c
    :caption: Reference
    :hidden:
 
-   reference/kernel
+   reference/kernel/index
    reference/nn/index
