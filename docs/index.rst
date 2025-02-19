@@ -1,6 +1,10 @@
-.. image:: _static/logo.svg
+========================
+Linear Operator Learning
+========================
+
+.. image:: _static/logo.png
          :alt: Logo
-         :width: 300px
+         :width: 512px
          :align: center
 
 Linear Operator Learning — LOL for short — is package to learn linear operators, developed by the `Computational Statistics & Machine Learning lab <https://csml.iit.it/home>`_ at the Italian Institute of Technology. 

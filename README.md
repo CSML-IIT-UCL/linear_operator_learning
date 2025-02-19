@@ -1,5 +1,5 @@
 <p align = "left">
-  <img src="logo.svg" alt="SVG Image" style="width:50%;"/>
+  <img src="logo.png" alt="SVG Image" style="width:50%;"/>
 </p>
 
 ## Install
