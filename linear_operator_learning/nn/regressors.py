@@ -1,18 +1,19 @@
 """NN regressors."""
 
 import torch
+from torch import Tensor
 
 from linear_operator_learning.nn.structs import FitResult
 
 
 def ridge_least_squares(
-    cov_X: torch.Tensor,
+    cov_X: Tensor,
     tikhonov_reg: float = 0.0,
 ) -> FitResult:
     """Fit the ridge least squares estimator for the transfer operator.
 
     Args:
-        cov_X (torch.Tensor): covariance matrix of the input data.
+        cov_X (Tensor): covariance matrix of the input data.
         tikhonov_reg (float, optional): Ridge regularization. Defaults to 0.0.
 
     """
