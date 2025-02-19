@@ -40,6 +40,14 @@ Modules
     :members:
     :exclude-members: __init__, __new__, forward
 
+.. autoclass:: linear_operator_learning.nn.ResNet
+    :members:
+    :exclude-members: __init__, __new__, forward
+
+.. autoclass:: linear_operator_learning.nn.SimNorm
+    :members:
+    :exclude-members: __init__, __new__, forward
+
 .. _nn_regressors:
 Regressors
 ~~~~~~~~~~
