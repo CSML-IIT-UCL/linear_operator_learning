@@ -1,7 +1,7 @@
 .. _kernel_reference:
-==============
-:code:`kernel`
-==============
+========================
+:code:`lol.kernel` namespace
+========================
 .. module:: linear_operator_learning.kernel
 
 Table of Contents
@@ -10,13 +10,15 @@ Table of Contents
 - :ref:`Regressors <kernel_regressors>`
 - :ref:`Types <kernel_types>`
 - :ref:`Linear Algebra <kernel_linalg>`
+- :ref:`Utilities <kernel_utils>`
+
 
 .. _kernel_regressors:
 Regressors
 ----------
 
-Inference
-~~~~~~~~~
+Common
+~~~~~~
 
 .. autofunction:: linear_operator_learning.kernel.predict
 
@@ -42,7 +44,7 @@ Principal Component Regression
 
 .. _kernel_types:
 Types
-~~~~~
+-----
 
 .. autoclass:: linear_operator_learning.kernel.structs.FitResult
     :members:
@@ -52,12 +54,21 @@ Types
 
 .. _kernel_linalg:
 Linear Algebra Utilities
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 .. autofunction:: linear_operator_learning.kernel.linalg.weighted_norm
 
 .. autofunction:: linear_operator_learning.kernel.linalg.stable_topk
 
 .. autofunction:: linear_operator_learning.kernel.linalg.add_diagonal_
+
+.. _kernel_utils:
+General Utilities
+-----------------
+
+.. autofunction:: linear_operator_learning.kernel.utils.topk
+
+.. autofunction:: linear_operator_learning.kernel.utils.sanitize_complex_conjugates
+
 
 .. footbibliography::

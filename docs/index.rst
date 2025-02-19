@@ -31,5 +31,4 @@ If you want to contibute to the project, please follow :ref:`these guidelines <c
    :hidden:
 
    reference/kernel
-   reference/nn
-   reference/nn_functional
+   reference/nn/index

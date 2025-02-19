@@ -3,8 +3,8 @@
 import torch
 from torch import Tensor
 
-from linear_operator_learning.nn.linalg import covariance, sqrtmh
-from linear_operator_learning.nn.stats import cov_norm_squared_unbiased
+from linear_operator_learning.nn.linalg import sqrtmh
+from linear_operator_learning.nn.stats import cov_norm_squared_unbiased, covariance
 
 # Losses_____________________________________________________________________________________________
 
