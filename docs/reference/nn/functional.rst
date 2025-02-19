@@ -6,7 +6,7 @@
 .. module:: linear_operator_learning.nn
 
 Table of Contents
------------------
+~~~~~~~~~~~~~~~~~
 
 - :ref:`Loss Functions <nn_func_loss_fns>`
 - :ref:`Regularization Functions <nn_func_reg_fns>`

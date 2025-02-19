@@ -6,7 +6,7 @@
 .. module:: linear_operator_learning.nn
 
 Table of Contents
------------------
+~~~~~~~~~~~~~~~~~
 
 - :ref:`Regressors <nn_regressors>`
 - :ref:`Loss Functions <nn_loss_fns>`

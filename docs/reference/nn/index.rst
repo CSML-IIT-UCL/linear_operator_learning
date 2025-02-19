@@ -10,5 +10,5 @@ This namespace loosely follows pytorch's structure. It contains a growing list o
 
     nn
     functional
-    linalg
     stats
+    linalg
