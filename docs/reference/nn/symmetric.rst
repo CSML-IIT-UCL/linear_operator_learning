@@ -5,7 +5,7 @@
 
 .. rst-class:: lead
 
-   Equivariant modules
+   Symmetry-aware functions
 
 
 Linear Algebra
@@ -19,11 +19,11 @@ Linear Algebra
 Statistics
 ----------
 
-.. autofunction:: linear_operator_learning.nn.symmetric.linalg.var_mean
+.. autofunction:: linear_operator_learning.nn.symmetric.stats.var_mean
 
-.. autofunction:: linear_operator_learning.nn.symmetric.linalg.isotypic_covariance
+.. autofunction:: linear_operator_learning.nn.symmetric.stats.isotypic_covariance
 
-.. autofunction:: linear_operator_learning.nn.symmetric.linalg.covariance
+.. autofunction:: linear_operator_learning.nn.symmetric.stats.covariance
 
     
 .. footbibliography::

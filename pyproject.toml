@@ -14,6 +14,11 @@ dependencies = [
     "torch>=2.0",
 ]
 
+[project.optional-dependencies]
+symm = [
+    "symm-torch ; sys_platform == 'linux'",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -43,10 +48,6 @@ examples = [
     "matplotlib>=3.10.0",
     "scikit-learn>=1.6.1",
     "seaborn>=0.13.2",
-]
-symm = [
-    "lie-learn==0.0.2",
-    "symm-torch",
 ]
 
 [tool.ruff]
