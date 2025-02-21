@@ -17,18 +17,18 @@ class _RegularizedLoss(Module):
 
     Args:
         gamma (float, optional): Regularization strength.
-        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'.
+        regularizer (literal, optional): Regularizer. Either :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>` or :func:`orthn_logfro <linear_operator_learning.nn.functional.orthonormal_logfro_reg>`. Defaults to :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>`.
     """
 
     def __init__(
-        self, gamma: float, regularizer: Literal["orthonormal_fro", "orthonormal_logfro"]
+        self, gamma: float, regularizer: Literal["orthn_fro", "orthn_logfro"]
     ) -> None:  # TODO: Automatically determine 'gamma' from dim_x and dim_y
         super().__init__()
         self.gamma = gamma
 
-        if regularizer == "orthonormal_fro":
+        if regularizer == "orthn_fro":
             self.regularizer = F.orthonormal_fro_reg
-        elif regularizer == "orthonormal_logfro":
+        elif regularizer == "orthn_logfro":
             self.regularizer = F.orthonormal_logfro_reg
         else:
             raise NotImplementedError(f"Regularizer {regularizer} not supported!")
