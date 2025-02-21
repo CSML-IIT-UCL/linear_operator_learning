@@ -3,11 +3,9 @@
 Neural Networks
 ===============
 
-This namespace loosely follows pytorch's structure. It contains a growing list of functions and modules to learn linear operators using neural-network feature maps.
+Functions and modules to learn linear operators via neural networks.
 
 .. toctree::
-    :hidden:
-    :titlesonly:
 
     nn
     functional

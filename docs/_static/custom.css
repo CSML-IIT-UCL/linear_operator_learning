@@ -1,3 +1,22 @@
 h2 {
     border-bottom-width: 0px !important;
 }
+
+img {
+    border-radius: 10px !important;
+}
+
+:root {
+    --mystnb-stdout-bg-color: theme(colors.background);
+    --mystnb-source-bg-color: theme(colors.background);
+}
+
+div.cell_input {
+   border-color: hsl(var(--border)) !important;
+   border-width: 1px !important;
+   border-radius: var(--radius) !important;
+}
+
+div.cell_output .output {
+    border: none !important;
+}

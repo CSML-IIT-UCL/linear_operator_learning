@@ -16,7 +16,8 @@ dependencies = [
 
 [project.optional-dependencies]
 symm = [
-    "symm-torch ; sys_platform == 'linux'",
+    "lie-learn==0.0.2; sys_platform == 'linux'",
+    "symm-torch ; sys_platform == 'linux'"
 ]
 
 [build-system]
@@ -40,6 +41,7 @@ docs = [
     "sphinxcontrib-applehelp==2.0.0",
     "sphinxcontrib-bibtex>=2.6.3",
     "sphinxcontrib-jsmath==1.0.1",
+    "myst-nb>=1.2.0",
 ]
 examples = [
     "ipykernel>=6.29.5",

@@ -20,10 +20,11 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    'sphinx.ext.viewcode',
     "sphinxawesome_theme",
-    "myst_parser",
     "sphinxcontrib.bibtex",
-    "sphinx_design"
+    "sphinx_design",
+    "myst_nb"
 ]
 
 myst_enable_extensions = ["amsmath", "dollarmath", "html_image"]
@@ -52,14 +53,15 @@ master_doc = "index"
 source_suffix = {
     ".rst": "restructuredtext",
     ".txt": "restructuredtext",
-    ".md": "markdown",
+    ".md": "myst-nb",
+    ".ipynb": "myst-nb",
 }
 
 # Favicon configuration
 # html_favicon = '_static/favicon.ico'
 
 # Configure syntax highlighting for Awesome Sphinx Theme
-pygments_style = "default"
+pygments_style = "tango"
 pygments_style_dark = "material"
 
 # Additional theme configuration
@@ -79,6 +81,7 @@ html_theme_options = {
 html_sidebars = {
   "**": ["sidebar_main_nav_links.html", "sidebar_toc.html"]
 }
+nb_execution_mode = "off"
 
 html_css_files = ["custom.css"]
 

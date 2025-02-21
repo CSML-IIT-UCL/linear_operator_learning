@@ -18,15 +18,22 @@ If you want to contibute to the project, please follow :ref:`these guidelines <c
 
 .. toctree::
    :maxdepth: 2
-   :caption: Getting Started:
+   :caption: Getting Started
    :hidden:
 
-   Introduction <self>
+   Quickstart <self>
    contributing.md
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
+   :caption: Examples
+   :hidden:
+
+   Independence Testing <examples/detecting_independence/detecting_independence.ipynb>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
    :hidden:
 
    reference/kernel/index

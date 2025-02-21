@@ -11,6 +11,10 @@
 Linear Algebra
 --------------
 
+.. rst-class:: lead
+
+   :code:`nn.symmetric.linalg`
+
 .. autofunction:: linear_operator_learning.nn.symmetric.linalg.invariant_orthogonal_projector
 
 .. autofunction:: linear_operator_learning.nn.symmetric.linalg.isotypic_signal2irreducible_subspaces
@@ -18,6 +22,10 @@ Linear Algebra
 
 Statistics
 ----------
+
+.. rst-class:: lead
+
+   :code:`nn.symmetric.stats`
 
 .. autofunction:: linear_operator_learning.nn.symmetric.stats.var_mean
 

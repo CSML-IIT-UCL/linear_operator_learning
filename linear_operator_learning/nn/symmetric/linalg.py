@@ -6,7 +6,7 @@ from escnn.group import Representation
 from torch import Tensor
 
 
-def invariant_orthogonal_projector(rep_X: Representation) -> Tensor:
+def invariant_orthogonal_projector(rep_X: Representation):
     r"""Computes the orthogonal projection to the invariant subspace.
 
     The input representation :math:`\rho_{\mathcal{X}}: \mathbb{G} \mapsto \mathbb{G}\mathbb{L}(\mathcal{X})` is transformed to the spectral basis given by:
