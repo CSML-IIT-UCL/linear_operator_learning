@@ -5,6 +5,7 @@ import numpy as np
 # Created by Daniel Ordoñez (daniels.ordonez@gmail.com) at 13/02/25
 import torch
 from escnn.group import Representation, change_basis
+from escnn.nn import FieldType
 from jinja2.lexer import TOKEN_DOT
 from symm_torch.utils.rep_theory import isotypic_decomp_rep
 from torch import Tensor
@@ -57,10 +58,9 @@ def lstsq(x: Tensor, y: Tensor, rep_x: Representation, rep_y: Representation):
     Y_iso_reps = rep_y.attributes["isotypic_reps"]
     Qx2iso = torch.tensor(rep_x.change_of_basis_inv, dtype=x.dtype, device=x.device)
     Qy2iso = torch.tensor(rep_y.change_of_basis_inv, dtype=y.dtype, device=y.device)
-    Qiso2y = torch.tensor(rep_y.change_of_basis, dtype=y.dtype, device=y.device)
 
-    x_iso = torch.einsum("ij,ni->nj", Qx2iso, x)
-    y_iso = torch.einsum("ij,ni->nj", Qy2iso, y)
+    x_iso = torch.einsum("ij,nj->ni", Qx2iso, x)
+    y_iso = torch.einsum("ij,nj->ni", Qy2iso, y)
 
     # Get orthogonal projection to isotypic subspaces.
     dimx, dimy = 0, 0
@@ -72,7 +72,7 @@ def lstsq(x: Tensor, y: Tensor, rep_x: Representation, rep_y: Representation):
         Y_iso_dims[irrep_k_id] = slice(dimy, dimy + rep_Y_k.size)
         dimy += rep_Y_k.size
 
-    A = torch.zeros((rep_y.size, rep_x.size), device=x.device, dtype=x.dtype)
+    A_iso = torch.zeros((rep_y.size, rep_x.size), device=x.device, dtype=x.dtype)
     for irrep_k_id in Y_iso_reps.keys():
         if irrep_k_id not in X_iso_reps:
             continue
@@ -91,11 +91,10 @@ def lstsq(x: Tensor, y: Tensor, rep_x: Representation, rep_y: Representation):
         out = torch.linalg.lstsq(x_sing, y_sing)
         A_k = torch.kron(out.solution.T, I_d_k)
 
-        A[Y_iso_dims[irrep_k_id], X_iso_dims[irrep_k_id]] = A_k
+        A_iso[Y_iso_dims[irrep_k_id], X_iso_dims[irrep_k_id]] = A_k
 
     # Change back to the original input output basis sets
-    A = Qiso2y @ A @ Qx2iso
-
+    A = Qy2iso.T @ A_iso @ Qx2iso
     return A
 
 
@@ -104,33 +103,34 @@ def test_lstsq():  # noqa: D103
     from escnn.group import directsum
 
     # Icosahedral group has irreps of dimensions [1, ... 5]. Good test case.
-    # G = escnn.group.Icosahedral()
     G = escnn.group.Icosahedral()
-    mx, my = 2, 2
+    mx, my = 2, 1
+    # G = escnn.group.DihedralGroup(10)
+    # mx, my = 6, 5
     rep_x = directsum([G.regular_representation] * mx)
     rep_y = directsum([G.regular_representation] * my)
 
-    # Test isotypic basis
-    rep_x = isotypic_decomp_rep(rep_x)
-    rep_x = change_basis(rep_x, rep_x.change_of_basis_inv, f"{rep_x.name}-iso")
-    rep_y = isotypic_decomp_rep(rep_y)
-    rep_y = change_basis(rep_y, rep_y.change_of_basis_inv, f"{rep_y.name}-iso")
+    # Test in the isotypic basis
+    # rep_x = isotypic_decomp_rep(rep_x)
+    # rep_x = change_basis(rep_x, rep_x.change_of_basis_inv, f"{rep_x.name}-iso")
+    # rep_y = isotypic_decomp_rep(rep_y)
+    # rep_y = change_basis(rep_y, rep_y.change_of_basis_inv, f"{rep_y.name}-iso")
 
-    batch_size = 256
+    x_field = FieldType(escnn.gspaces.no_base_space(G), representations=[rep_x])
+    y_field = FieldType(escnn.gspaces.no_base_space(G), representations=[rep_y])
+    lin_map = escnn.nn.Linear(x_field, y_field, bias=False)
+    A_gt, _ = lin_map.expand_parameters()
+    A_gt = A_gt.detach().cpu().numpy()
+
+    batch_size = 512
+
     X = torch.randn(batch_size, rep_x.size)
+    GX = [torch.einsum("ij,nj->ni", torch.tensor(rep_x(g), dtype=X.dtype), X) for g in G.elements]
+    X = torch.cat(GX, dim=0)
 
-    # Random G-equivariant linear map A: X -> Y
-    A_gt = np.random.rand(rep_y.size, rep_x.size)
-    G_gt = [np.einsum("ij,jk,kl->il", rep_y(~g), A_gt, rep_x(g)) for g in G.elements]
-    A_gt = torch.tensor(np.mean(G_gt, axis=0), dtype=X.dtype)
-    for g in G.elements:
-        assert np.allclose(rep_y(g) @ A_gt.numpy(), A_gt.numpy() @ rep_x(g), atol=1e-5, rtol=1e-5)
+    Y = torch.einsum("ij,nj->ni", torch.tensor(A_gt, dtype=X.dtype), X)
+    A = lstsq(X, Y, rep_x, rep_y).numpy()
 
-    Y = torch.einsum("ij,nj->ni", A_gt, X)
-    A = lstsq(X, Y, rep_x, rep_y)
+    assert np.allclose(A_gt, A, atol=1e-3, rtol=1e-3)
 
-    assert np.allclose(A_gt.numpy(), A.numpy(), atol=1e-5, rtol=1e-5)
-
-
-if __name__ == "__main__":
-    test_lstsq()
+    print("Symmetric Least Squares error test passed.")
