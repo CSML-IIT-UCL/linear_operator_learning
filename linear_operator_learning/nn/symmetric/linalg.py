@@ -45,22 +45,49 @@ def isotypic_signal2irreducible_subspaces(x: Tensor, rep_x: Representation):
     return Z
 
 
-def lstsq(x: Tensor, y: Tensor, rep_x: Representation, rep_y: Representation):
-    r"""Computes a symmetry-aware solution to the least squares problem of a system of linear equations.
+def lstsq(X: Tensor, Y: Tensor, rep_X: Representation, rep_Y: Representation):
+    r"""Computes a solution to the least squares problem of a system of linear equations with equivariance constraints.
 
-    The least squares problem for a linear system of equations :math:`Y = AX` with :math:`Y \in \mathbb{R}^{N\times n_y}`
-    and :math:`X \in \mathbb{R}^{N\times n_x}`
-    TODO: Finish docs
+    The :math:`\mathbb{G}`-equivariant least squares problem to the linear system of equations :math:`\mathbf{Y} = \mathbf{A}\,\mathbf{X}`,
+    is defined as
+
+    .. math::
+        \begin{align}
+            &\| \mathbf{Y} - \mathbf{A}\,\mathbf{X} \|_F \\
+            & \text{s.t.} \quad \rho_{\mathcal{Y}}(g) \mathbf{A} = \mathbf{A}\rho_{\mathcal{X}}(g) \quad \forall g \in \mathbb{G},
+        \end{align}
+
+    where :math:`\rho_{\mathcal{Y}}` and :math:`\rho_{\mathcal{X}}` denote the group representations on :math:`\mathbf{X}` and :math:`\mathbf{Y}`.
+
+    Args:
+        X (Tensor):
+            Realizations of the random variable :math:`\mathbf{X}` with shape :math:`(N, D_x)`, where :math:`N` is the number of samples.
+        Y (Tensor):
+            Realizations of the r andom variable :math:`\mathbf{Y}` with shape :math:`(N, D_y)`.
+        rep_X (Representation):
+            The finite-group representation under which :math:`\mathbf{X}` transforms.
+        rep_Y (Representation):
+            The finite-group representation under which :math:`\mathbf{Y}` transforms.
+
+    Returns:
+        Tensor:
+            A :math:`(D_y \times D_x)` matrix :math:`\mathbf{A}` satisfying the G-equivariance constraint
+            and minimizing :math:`\|\mathbf{Y} - \mathbf{A}\,\mathbf{X}\|^2`.
+
+    Shape:
+        - X: :math:`(N, D_x)`
+        - Y: :math:`(N, D_y)`
+        - Output: :math:`(D_y, D_x)`
     """
-    rep_x = isotypic_decomp_rep(rep_x)
-    rep_y = isotypic_decomp_rep(rep_y)
-    X_iso_reps = rep_x.attributes["isotypic_reps"]
-    Y_iso_reps = rep_y.attributes["isotypic_reps"]
-    Qx2iso = torch.tensor(rep_x.change_of_basis_inv, dtype=x.dtype, device=x.device)
-    Qy2iso = torch.tensor(rep_y.change_of_basis_inv, dtype=y.dtype, device=y.device)
+    rep_X = isotypic_decomp_rep(rep_X)
+    rep_Y = isotypic_decomp_rep(rep_Y)
+    X_iso_reps = rep_X.attributes["isotypic_reps"]
+    Y_iso_reps = rep_Y.attributes["isotypic_reps"]
+    Qx2iso = torch.tensor(rep_X.change_of_basis_inv, dtype=X.dtype, device=X.device)
+    Qy2iso = torch.tensor(rep_Y.change_of_basis_inv, dtype=Y.dtype, device=Y.device)
 
-    x_iso = torch.einsum("ij,nj->ni", Qx2iso, x)
-    y_iso = torch.einsum("ij,nj->ni", Qy2iso, y)
+    x_iso = torch.einsum("ij,nj->ni", Qx2iso, X)
+    y_iso = torch.einsum("ij,nj->ni", Qy2iso, Y)
 
     # Get orthogonal projection to isotypic subspaces.
     dimx, dimy = 0, 0
@@ -72,12 +99,12 @@ def lstsq(x: Tensor, y: Tensor, rep_x: Representation, rep_y: Representation):
         Y_iso_dims[irrep_k_id] = slice(dimy, dimy + rep_Y_k.size)
         dimy += rep_Y_k.size
 
-    A_iso = torch.zeros((rep_y.size, rep_x.size), device=x.device, dtype=x.dtype)
+    A_iso = torch.zeros((rep_Y.size, rep_X.size), device=X.device, dtype=X.dtype)
     for irrep_k_id in Y_iso_reps.keys():
         if irrep_k_id not in X_iso_reps:
             continue
-        d_k = rep_x.group.irrep(*irrep_k_id).size
-        I_d_k = torch.eye(d_k, dtype=x.dtype, device=x.device)
+        d_k = rep_X.group.irrep(*irrep_k_id).size
+        I_d_k = torch.eye(d_k, dtype=X.dtype, device=X.device)
         rep_X_k, rep_Y_k = X_iso_reps[irrep_k_id], Y_iso_reps[irrep_k_id]
         x_k, y_k = x_iso[..., X_iso_dims[irrep_k_id]], y_iso[..., Y_iso_dims[irrep_k_id]]
 
