@@ -8,8 +8,6 @@ from escnn.group import Representation
 from symm_torch.utils.rep_theory import isotypic_decomp_rep
 from torch import Tensor
 
-from linear_operator_learning.nn.symmetric.linalg import invariant_orthogonal_projector
-
 
 def var_mean(x: Tensor, rep_X: Representation) -> [Tensor, Tensor]:
     """Compute the mean and variance of a symmetric random variable.
@@ -157,7 +155,7 @@ def isotypic_covariance(
 def covariance(X: Tensor, Y: Tensor, rep_X: Representation, rep_Y: Representation):
     r"""Compute the covariance between two symmetric random variables.
 
-    The covariance of r.v. can be computed from the covariance of the orthogonal projections of the r.v. to each isotypic subspace. Hence in the disentangled/isotypic basis the covariance can be computed in
+    The covariance of r.v. can be computed from the orthogonal projections of the r.v. to each isotypic subspace. Hence in the disentangled/isotypic basis the covariance can be computed in
     block-diagonal form:
 
     .. math::
@@ -183,7 +181,7 @@ def covariance(X: Tensor, Y: Tensor, rep_X: Representation, rep_Y: Representatio
         Y: (N, Dy) where `Dy` is the dimension of the random variable Y.
         Output: (Dy, Dx)
     """
-    assert X.shape[0] == Y.shape[0], "Expected equal number of samples in X and Y"
+    # assert X.shape[0] == Y.shape[0], "Expected equal number of samples in X and Y"
     assert X.shape[1] == rep_X.size, f"Expected X shape (N, {rep_X.size}), got {X.shape}"
     assert Y.shape[1] == rep_Y.size, f"Expected Y shape (N, {rep_Y.size}), got {Y.shape}"
     assert X.shape[-1] == rep_X.size, f"Expected X shape (..., {rep_X.size}), got {X.shape}"
@@ -401,3 +399,44 @@ def test_symmetric_moments():  # noqa: D103
     Gx = torch.cat(Gx, dim=0)
     mean_Gx = torch.mean(Gx, dim=0)
     assert torch.allclose(mean, mean_Gx, atol=1e-6, rtol=1e-4), f"Mean {mean} != {mean_Gx}"
+
+
+def invariant_orthogonal_projector(rep_X: Representation) -> Tensor:
+    r"""Computes the orthogonal projection to the invariant subspace.
+
+    The input representation :math:`\rho_{\mathcal{X}}: \mathbb{G} \mapsto \mathbb{G}\mathbb{L}(\mathcal{X})` is transformed to the spectral basis given by:
+
+    .. math::
+        \rho_\mathcal{X} = \mathbf{Q} \left( \bigoplus_{i\in[1,n]} \hat{\rho}_i \right) \mathbf{Q}^T
+
+    where :math:`\hat{\rho}_i` denotes an instance of one of the irreducible representations of the group, and :math:`\mathbf{Q}: \mathcal{X} \mapsto \mathcal{X}` is the orthogonal change of basis from the spectral basis to the original basis.
+
+    The projection is performed by:
+        1. Changing the basis to the representation spectral basis (exposing signals per irrep).
+        2. Zeroing out all signals on irreps that are not trivial.
+        3. Mapping back to the original basis set.
+
+    Args:
+        rep_X (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
+
+    Returns:
+        Tensor: The orthogonal projection matrix to the invariant subspace, :math:`\mathbf{Q} \mathbf{S} \mathbf{Q}^T`.
+    """
+    Qx_T, Qx = Tensor(rep_X.change_of_basis_inv), Tensor(rep_X.change_of_basis)
+
+    # S is an indicator of which dimension (in the irrep-spectral basis) is associated with a trivial irrep
+    S = torch.zeros((rep_X.size, rep_X.size))
+    irreps_dimension = []
+    cum_dim = 0
+    for irrep_id in rep_X.irreps:
+        irrep = rep_X.group.irrep(*irrep_id)
+        # Get dimensions of the irrep in the original basis
+        irrep_dims = range(cum_dim, cum_dim + irrep.size)
+        irreps_dimension.append(irrep_dims)
+        if irrep_id == rep_X.group.trivial_representation.id:
+            # this dimension is associated with a trivial irrep
+            S[irrep_dims, irrep_dims] = 1
+        cum_dim += irrep.size
+
+    inv_projector = Qx @ S @ Qx_T
+    return inv_projector
