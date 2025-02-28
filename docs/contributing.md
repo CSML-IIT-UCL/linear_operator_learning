@@ -1,11 +1,12 @@
 (contributing)=
-# Contributing
+# Developer guide
 
 To develop this project, please setup the [`uv` project manager](https://astral.sh/uv) by running the following commands:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-git clone git@github.com:CSML-IIT-UCL/linear_operator_learning.git & cd linear_operator_learning
+git clone git@github.com:CSML-IIT-UCL/linear_operator_learning.git 
+cd linear_operator_learning
 uv sync --dev
 uv run pre-commit install
 ```

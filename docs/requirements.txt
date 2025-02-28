@@ -9,4 +9,5 @@ sphinxcontrib-serializinghtml==2.0.0
 sphinxcontrib-bibtex
 sphinx_design
 myst-parser
+myst-nb
 git+https://github.com/CSML-IIT-UCL/linear_operator_learning

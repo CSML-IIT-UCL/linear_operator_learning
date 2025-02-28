@@ -9,23 +9,20 @@ from symm_torch.utils.rep_theory import isotypic_decomp_rep
 from torch import Tensor
 
 
-def var_mean(x: Tensor, rep_X: Representation) -> [Tensor, Tensor]:
+def var_mean(x: Tensor, rep_X: Representation):
     """Compute the mean and variance of a symmetric random variable.
 
     Args:
-        x: (Tensor) of shape (N, Dx) containing the observations of the symmetric random variable
+        x: (Tensor) of shape :math:`(N, Dx)` containing the observations of the symmetric random variable
         rep_X: (escnn.group.Representation) representation of the symmetric random variable.
 
     Returns:
-        mean: (Tensor) of shape (Dx,) containing the mean of the symmetric random variable, restricted to be
-                in the trivial/G-invariant subspace of the symmetric vector space.
-        var: (Tensor) of shape (Dx,) containing the variance of the symmetric random variable, constrained to be
-                the same for all dimensions of each G-irreducible subspace (i.e., each subspace associated with an
-                irrep).
+        (Tensor, Tensor): Mean and variance of the symmetric random variable. The mean isrestricted to be in the trivial/G-invariant subspace of the symmetric vector space. The variance is constrained to be the same for all dimensions of each G-irreducible subspace (i.e., each subspace associated with an irrep).
 
     Shape:
-        x: (N, Dx) where N is the number of samples and Dx is the dimension of the symmetric random variable.
-        Output: (Dx, Dx)
+        :code:`x`: :math:`(N, Dx)` where N is the number of samples and Dx is the dimension of the symmetric random variable.
+
+        Output: :math:`(Dx, Dx)`
     """
     assert len(x.shape) == 2, f"Expected x to have shape (N, n_features), got {x.shape}"
     # Compute the mean of the observation.
@@ -62,18 +59,19 @@ def isotypic_covariance(
     Args:
         x (Tensor): Realizations of the random variable X.
         y (Tensor): Realizations of the random variable Y.
-        rep_X (escnn.nn.Representation): composed of m_x copies of a single irrep: :math:`\rho_X = \otimes_i^m_x \rho_k`
-        rep_Y (escnn.nn.Representation): composed of m_y copies of a single irrep: :math:`\rho_Y = \otimes_i^m_y \rho_k`
+        rep_X (escnn.nn.Representation): composed of :math:`m_x` copies of a single irrep: :math:`\rho_X = \otimes_i^{m_x} \rho_k`
+        rep_Y (escnn.nn.Representation): composed of :math:`m_y` copies of a single irrep: :math:`\rho_Y = \otimes_i^{m_y} \rho_k`
         center (bool): whether to center the signals before computing the covariance.
 
     Returns:
-        Tensor: :math:`\mathbf{C}_{xy}`, (m_y \cdot d, m_x \cdot d) the covariance matrix between the isotypic subspaces of X and Y.
-        Tensor: :math:`\mathbf{Z}_{xy}`, (m_y, m_x) free parameters of the covariance matrix in the isotypic basis.
+        (Tensor, Tensor): :math:`\mathbf{C}_{xy}`, (:math:`m_y \cdot d, m_x \cdot d`) the covariance matrix between the isotypic subspaces of :code:`x` and :code:`y`, and :math:`\mathbf{Z}_{xy}`, (:math:`m_y, m_x`) the free parameters of the covariance matrix in the isotypic basis.
 
     Shape:
-        x: `(..., N, m_x * d)` where N is the number of samples, `d` is the dimension of the only irrep in `rep_X` and `m_x` is the multiplicity of the irrep in X.
-        y: `(..., N, m_y * d)` where N is the number of samples, `d` is the dimension of the only irrep in `rep_Y` and `m_y` is the multiplicity of the irrep in Y.
-        Output: `(m_y * d, m_x * d)`.
+        :code:`x`: :math:`(..., N, m_x * d)` where N is the number of samples, :math:`d` is the dimension of the only irrep in :math:`rep_X` and :math:`m_x` is the multiplicity of the irrep in X.
+
+        :code:`y`: :math:`(..., N, m_y * d)` where N is the number of samples, :math:`d` is the dimension of the only irrep in :math:`rep_Y` and :math:`m_y` is the multiplicity of the irrep in Y.
+
+        Output: :math:`(m_y * d, m_x * d)`.
     """
     assert len(rep_X._irreps_multiplicities) == len(rep_Y._irreps_multiplicities) == 1, (
         f"Expected group representation of an isotypic subspace.I.e., with only one type of irrep. \nFound: "
@@ -174,12 +172,14 @@ def covariance(X: Tensor, Y: Tensor, rep_X: Representation, rep_Y: Representatio
         rep_Y (Representation): The representation for which the orthogonal projection to the invariant subspace is computed.
 
     Returns:
-        Tensor: The covariance matrix between the two random variables, of shape (Dy, Dx).
+        Tensor: The covariance matrix between the two random variables, of shape :math:`(Dy, Dx)`.
 
     Shape:
-        X: (N, Dx) where `Dx` is the dimension of the random variable X.
-        Y: (N, Dy) where `Dy` is the dimension of the random variable Y.
-        Output: (Dy, Dx)
+        X: :math:`(N, Dx)` where :math:`Dx` is the dimension of the random variable X.
+        
+        Y: :math:`(N, Dy)` where :math:`Dy` is the dimension of the random variable Y.
+        
+        Output: :math:`(Dy, Dx)`
     """
     # assert X.shape[0] == Y.shape[0], "Expected equal number of samples in X and Y"
     assert X.shape[1] == rep_X.size, f"Expected X shape (N, {rep_X.size}), got {X.shape}"

@@ -7,6 +7,8 @@ import torch.nn.functional as F
 class SimNorm(nn.Module):
     """Simplicial normalization from :footcite:t:`lavoie2022simplicial`.
 
+    Simplicial normalization splits the input into chunks of dimension :code:`dim`, applies a softmax transformation to each of the chunks separately, and concatenates them back together.
+
     Args:
         dim (int): Dimension of the simplicial groups.
     """

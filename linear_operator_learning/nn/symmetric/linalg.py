@@ -26,7 +26,10 @@ def isotypic_signal2irreducible_subspaces(x: Tensor, rep_x: Representation):
         rep_x (escnn.nn.Representation): Representation in the isotypic basis of a single type of irrep.
 
     Returns:
-        Tensor: Shape :math:`(n \cdot d, m_x)` where each column represents the flattened signal of an irreducible subspace.
+        Tensor:
+
+    Shape:
+        :math:`(n \cdot d, m_x)`, where each column represents the flattened signal of an irreducible subspace.
     """
     assert len(rep_x._irreps_multiplicities) == 1, (
         "Random variable is assumed to be in a single isotypic subspace."

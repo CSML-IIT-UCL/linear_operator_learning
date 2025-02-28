@@ -6,7 +6,6 @@ from torch import Tensor
 from torch.nn import Module
 
 from linear_operator_learning.nn import functional as F
-from linear_operator_learning.nn.linalg import covariance
 
 __all__ = ["VampLoss", "L2ContrastiveLoss", "KLContrastiveLoss", "DPLoss"]
 
@@ -18,18 +17,18 @@ class _RegularizedLoss(Module):
 
     Args:
         gamma (float, optional): Regularization strength.
-        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'.
+        regularizer (literal, optional): Regularizer. Either :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>` or :func:`orthn_logfro <linear_operator_learning.nn.functional.orthonormal_logfro_reg>`. Defaults to :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>`.
     """
 
     def __init__(
-        self, gamma: float, regularizer: Literal["orthonormal_fro", "orthonormal_logfro"]
+        self, gamma: float, regularizer: Literal["orthn_fro", "orthn_logfro"]
     ) -> None:  # TODO: Automatically determine 'gamma' from dim_x and dim_y
         super().__init__()
         self.gamma = gamma
 
-        if regularizer == "orthonormal_fro":
+        if regularizer == "orthn_fro":
             self.regularizer = F.orthonormal_fro_reg
-        elif regularizer == "orthonormal_logfro":
+        elif regularizer == "orthn_logfro":
             self.regularizer = F.orthonormal_logfro_reg
         else:
             raise NotImplementedError(f"Regularizer {regularizer} not supported!")
@@ -40,13 +39,13 @@ class VampLoss(_RegularizedLoss):
 
     .. math::
 
-        -\sum_{i} \sigma_{i}(A)^{p} \qquad \text{where}~A = \big(x^{\top}x\big)^{\dagger/2}x^{\top}y\big(y^{\top}y\big)^{\dagger/2}.
+        \mathcal{L}(x, y) = -\sum_{i} \sigma_{i}(A)^{p} \qquad \text{where}~A = \big(x^{\top}x\big)^{\dagger/2}x^{\top}y\big(y^{\top}y\big)^{\dagger/2}.
 
     Args:
         schatten_norm (int, optional): Computes the VAMP-p score with ``p = schatten_norm``. Defaults to 2.
         center_covariances (bool, optional): Use centered covariances to compute the VAMP score. Defaults to True.
         gamma (float, optional): Regularization strength. Defaults to 1e-3.
-        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
+        regularizer (literal, optional): Regularizer. Either :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>` or :func:`orthn_logfro <linear_operator_learning.nn.functional.orthonormal_logfro_reg>`. Defaults to :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>`.
     """
 
     def __init__(
@@ -61,7 +60,7 @@ class VampLoss(_RegularizedLoss):
         self.center_covariances = center_covariances
 
     def forward(self, x: Tensor, y: Tensor) -> Tensor:
-        """Forward pass of VampLoss.
+        """Forward pass of VAMP loss.
 
         Args:
             x (Tensor): Features for x.
@@ -88,11 +87,11 @@ class L2ContrastiveLoss(_RegularizedLoss):
 
     .. math::
 
-        \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle^2 - \frac{2}{N}\sum_{i=1}\langle x_{i}, y_{i} \rangle.
+        \mathcal{L}(x, y) = \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle^2 - \frac{2}{N}\sum_{i=1}\langle x_{i}, y_{i} \rangle.
 
     Args:
         gamma (float, optional): Regularization strength. Defaults to 1e-3.
-        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
+        regularizer (literal, optional): Regularizer. Either :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>` or :func:`orthn_logfro <linear_operator_learning.nn.functional.orthonormal_logfro_reg>`. Defaults to :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>`.
     """
 
     def __init__(
@@ -125,14 +124,13 @@ class DPLoss(_RegularizedLoss):
 
     .. math::
 
-
-        -\frac{\|x^{\top}y\|^{2}_{{\rm F}}}{\|x^{\top}x\|^{2}\|y^{\top}y\|^{2}}.
+        \mathcal{L}(x, y) = -\frac{\|x^{\top}y\|^{2}_{{\rm F}}}{\|x^{\top}x\|^{2}\|y^{\top}y\|^{2}}.
 
     Args:
         relaxed (bool, optional): Whether to use the relaxed (more numerically stable) or the full deep-projection loss. Defaults to True.
         center_covariances (bool, optional): Use centered covariances to compute the Deep Projection loss. Defaults to True.
         gamma (float, optional): Regularization strength. Defaults to 1e-3.
-        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
+        regularizer (literal, optional): Regularizer. Either :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>` or :func:`orthn_logfro <linear_operator_learning.nn.functional.orthonormal_logfro_reg>`. Defaults to :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>`.
     """
 
     def __init__(
@@ -171,11 +169,13 @@ class KLContrastiveLoss(_RegularizedLoss):
 
     .. math::
 
-        \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle - \frac{2}{N}\sum_{i=1}\log\big(\langle x_{i}, y_{i} \rangle\big).
+        \mathcal{L}(x, y) = \frac{1}{N(N-1)}\sum_{i \neq j}\langle x_{i}, y_{j} \rangle - \frac{2}{N}\sum_{i=1}\log\big(\langle x_{i}, y_{i} \rangle\big).
 
     Args:
         gamma (float, optional): Regularization strength. Defaults to 1e-3.
-        regularizer (literal, optional): Regularizer. Either 'orthn_fro' or 'orthn_logfro'. Defaults to 'orthn_fro'.
+        regularizer (literal, optional): Regularizer. Either :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>` or :func:`orthn_logfro <linear_operator_learning.nn.functional.orthonormal_logfro_reg>`. Defaults to :func:`orthn_fro <linear_operator_learning.nn.functional.orthonormal_fro_reg>`.
+
+
     """
 
     def __init__(
