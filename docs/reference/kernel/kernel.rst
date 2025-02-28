@@ -4,31 +4,31 @@
 ==============
 .. module:: linear_operator_learning.kernel
 
+.. rst-class:: lead
+
+   Kernel Methods
+
 Table of Contents
 -----------------
 
 - :ref:`Regressors <kernel_regressors>`
 - :ref:`Types <kernel_types>`
 - :ref:`Linear Algebra <kernel_linalg>`
+- :ref:`Utilities <kernel_utils>`
+
 
 .. _kernel_regressors:
 Regressors
 ----------
 
-Inference
-~~~~~~~~~
+Common
+~~~~~~
 
 .. autofunction:: linear_operator_learning.kernel.predict
 
-.. autofunction:: linear_operator_learning.kernel.predict_physics_informed
-
 .. autofunction:: linear_operator_learning.kernel.eig
 
-.. autofunction:: linear_operator_learning.kernel.eig_physics_informed
-
 .. autofunction:: linear_operator_learning.kernel.evaluate_eigenfunction
-
-.. autofunction:: linear_operator_learning.kernle.evaluate_right_eigenfunction_physics_informed
 
 .. _rrr:
 Reduced Rank
@@ -39,8 +39,6 @@ Reduced Rank
 
 .. autofunction:: linear_operator_learning.kernel.rand_reduced_rank
 
-.. autofunction:: linear_operator_learning.kernel.reduced_rank_regression_physics_informed
-
 .. _pcr:
 Principal Component Regression
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,7 +48,7 @@ Principal Component Regression
 
 .. _kernel_types:
 Types
-~~~~~
+-----
 
 .. autoclass:: linear_operator_learning.kernel.structs.FitResult
     :members:
@@ -60,7 +58,7 @@ Types
 
 .. _kernel_linalg:
 Linear Algebra Utilities
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 .. autofunction:: linear_operator_learning.kernel.linalg.weighted_norm
 
@@ -68,15 +66,13 @@ Linear Algebra Utilities
 
 .. autofunction:: linear_operator_learning.kernel.linalg.add_diagonal_
 
+.. _kernel_utils:
+General Utilities
+-----------------
 
-.. _kernel_derivatives:
-Kernel Derivatives
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: linear_operator_learning.kernel.return_phi_dphi
+.. autofunction:: linear_operator_learning.kernel.utils.topk
 
-.. autofunction:: linear_operator_learning.kernel.return_dphi_dphi
+.. autofunction:: linear_operator_learning.kernel.utils.sanitize_complex_conjugates
 
-Bibliography
-~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. footbibliography::

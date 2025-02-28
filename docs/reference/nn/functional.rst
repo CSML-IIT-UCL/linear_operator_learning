@@ -3,14 +3,17 @@
 :code:`nn.functional`
 =====================
 
+.. rst-class:: lead
+
+   Functional implementations
+
 .. module:: linear_operator_learning.nn
 
 Table of Contents
------------------
+~~~~~~~~~~~~~~~~~
 
 - :ref:`Loss Functions <nn_func_loss_fns>`
-- :ref:`Regularizations <nn_func_reg_fns>`
-- :ref:`Linear Algebra <nn_func_linalg>`
+- :ref:`Regularization Functions <nn_func_reg_fns>`
 
 .. _nn_func_loss_fns:
 Loss Functions
@@ -28,14 +31,8 @@ Loss Functions
 Regularization Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: linear_operator_learning.nn.functional.logfro_loss
+.. autofunction:: linear_operator_learning.nn.functional.orthonormal_fro_reg
 
-.. _nn_func_linalg:
-Linear Algebra Utilities
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: linear_operator_learning.nn.linalg.covariance
-
-.. autofunction:: linear_operator_learning.nn.linalg.sqrtmh
+.. autofunction:: linear_operator_learning.nn.functional.orthonormal_logfro_reg
 
 .. footbibliography::

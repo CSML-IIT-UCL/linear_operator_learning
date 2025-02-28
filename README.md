@@ -1,5 +1,5 @@
 <p align = "left">
-  <img src="logo.svg" alt="SVG Image" style="width:50%;"/>
+  <img src="logo.png" alt="SVG Image" style="width:50%;"/>
 </p>
 
 ## Install
@@ -16,7 +16,8 @@ To develop this project, please setup the [`uv` project manager](https://astral.
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-git clone git@github.com:CSML-IIT-UCL/linear_operator_learning.git & cd linear_operator_learning
+git clone git@github.com:CSML-IIT-UCL/linear_operator_learning.git 
+cd linear_operator_learning
 uv sync --dev
 uv run pre-commit install
 ```

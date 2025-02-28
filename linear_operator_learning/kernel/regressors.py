@@ -5,15 +5,22 @@ from typing import Literal
 from warnings import warn
 
 import numpy as np
+import scipy.linalg
 from numpy import ndarray
-from scipy.linalg import cho_factor, cho_solve, eig, eigh, lstsq, qr
 from scipy.sparse.linalg import eigs, eigsh
 
-from linear_operator_learning.kernel.linalg import add_diagonal_, stable_topk
-from linear_operator_learning.kernel.structs import FitResult
+from linear_operator_learning.kernel.linalg import (
+    add_diagonal_,
+    stable_topk,
+    weighted_norm,
+)
+from linear_operator_learning.kernel.structs import EigResult, FitResult
+from linear_operator_learning.kernel.utils import sanitize_complex_conjugates
 
 __all__ = [
     "predict",
+    "eig",
+    "evaluate_eigenfunction",
     "predict_physics_informed",
     "pcr",
     "nystroem_pcr",
@@ -24,6 +31,85 @@ __all__ = [
 ]
 
 
+def eig(
+    fit_result: FitResult,
+    K_X: ndarray,  # Kernel matrix of the input data
+    K_YX: ndarray,  # Kernel matrix between the output data and the input data
+) -> EigResult:
+    """Computes the eigendecomposition of a regressor.
+
+    Args:
+        fit_result (FitResult): Fit result as defined in ``linear_operator_learning.kernel.structs``.
+        K_X (ndarray): Kernel matrix of the input data.
+        K_YX (ndarray): Kernel matrix between the output data and the input data.
+
+
+    Shape:
+        ``K_X``: :math:`(N, N)`, where :math:`N` is the sample size.
+
+        ``K_YX``: :math:`(N, N)`, where :math:`N` is the sample size.
+
+        Output: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
+        where :math:`N` is the sample size and  :math:`R` is the rank of the regressor.
+    """
+    # SUV.TZ -> V.T K_YX U (right ev = SUvr, left ev = ZVvl)
+    U = fit_result["U"]
+    V = fit_result["V"]
+    r_dim = (K_X.shape[0]) ** (-1)
+
+    W_YX = np.linalg.multi_dot([V.T, r_dim * K_YX, U])
+    W_X = np.linalg.multi_dot([U.T, r_dim * K_X, U])
+
+    values, vl, vr = scipy.linalg.eig(W_YX, left=True, right=True)  # Left -> V, Right -> U
+    values = sanitize_complex_conjugates(values)
+    r_perm = np.argsort(values)
+    vr = vr[:, r_perm]
+    l_perm = np.argsort(values.conj())
+    vl = vl[:, l_perm]
+    values = values[r_perm]
+
+    rcond = 1000.0 * np.finfo(U.dtype).eps
+    # Normalization in RKHS
+    norm_r = weighted_norm(vr, W_X)
+    norm_r = np.where(norm_r < rcond, np.inf, norm_r)
+    vr = vr / norm_r
+
+    # Bi-orthogonality of left eigenfunctions
+    norm_l = np.diag(np.linalg.multi_dot([vl.T, W_YX, vr]))
+    norm_l = np.where(np.abs(norm_l) < rcond, np.inf, norm_l)
+    vl = vl / norm_l
+    result: EigResult = {"values": values, "left": V @ vl, "right": U @ vr}
+    return result
+
+
+def evaluate_eigenfunction(
+    eig_result: EigResult,
+    which: Literal["left", "right"],
+    K_Xin_X_or_Y: ndarray,
+):
+    """Evaluates left or right eigenfunctions of a regressor.
+
+    Args:
+        eig_result: EigResult object containing eigendecomposition results
+        which: String indicating "left" or "right" eigenfunctions
+        K_Xin_X_or_Y: Kernel matrix between initial conditions and input data (for right
+            eigenfunctions) or output data (for left eigenfunctions)
+
+
+    Shape:
+        ``eig_result``: ``U, V`` of shape :math:`(N, R)`, ``svals`` of shape :math:`R`
+        where :math:`N` is the sample size and  :math:`R` is the rank of the regressor.
+
+        ``K_Xin_X_or_Y``: :math:`(N_0, N)`, where :math:`N_0` is the number of inputs to
+        predict and :math:`N` is the sample size.
+
+        Output: :math:`(N_0, R)`
+    """
+    vr_or_vl = eig_result[which]
+    rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
+    return np.linalg.multi_dot([rsqrt_dim * K_Xin_X_or_Y, vr_or_vl])
+
+
 def predict(
     num_steps: int,
     fit_result: FitResult,
@@ -31,7 +117,7 @@ def predict(
     kernel_Xin_X: ndarray,
     obs_train_Y: ndarray,
 ) -> ndarray:
-    """Predicts future states using kernel matrices and fitted results.
+    """Predicts future states given initial values using a fitted regressor.
 
     Args:
         num_steps (int): Number of steps to predict forward (returns the last prediction)
@@ -125,7 +211,7 @@ def pcr(
         _num_arnoldi_eigs = min(rank + 5, kernel_X.shape[0])
         values, vectors = eigsh(kernel_X, k=_num_arnoldi_eigs)
     elif svd_solver == "full":
-        values, vectors = eigh(kernel_X)
+        values, vectors = scipy.linalg.eigh(kernel_X)
     else:
         raise ValueError(f"Unknown svd_solver {svd_solver}")
     add_diagonal_(kernel_X, -npts * tikhonov_reg)
@@ -174,7 +260,7 @@ def nystroem_pcr(
     kernel_Xnys_sq = kernel_Xnys.T @ kernel_Xnys
     add_diagonal_(kernel_X, reg * ncenters)
     if svd_solver == "full":
-        values, vectors = eigh(
+        values, vectors = scipy.linalg.eigh(
             kernel_Xnys_sq, kernel_X
         )  # normalization leads to needing to invert evals
     elif svd_solver == "arnoldi":
@@ -195,7 +281,7 @@ def nystroem_pcr(
 
     U = sqrt(ncenters) * vectors / np.sqrt(values)
     V = np.linalg.multi_dot([kernel_Ynys.T, kernel_Xnys, vectors])
-    V = lstsq(kernel_Y, V)[0]
+    V = scipy.linalg.lstsq(kernel_Y, V)[0]
     V = sqrt(ncenters) * V / np.sqrt(values)
 
     kernel_X_eigvalsh = np.sqrt(np.abs(values)) / npts
@@ -238,7 +324,7 @@ def reduced_rank(
         num_arnoldi_eigs = min(rank + 5, npts)
         values, vectors = eigs(A, k=num_arnoldi_eigs, M=kernel_X)
     elif svd_solver == "full":  # 'full'
-        values, vectors = eig(A, kernel_X, overwrite_a=True, overwrite_b=True)
+        values, vectors = scipy.linalg.eig(A, kernel_X, overwrite_a=True, overwrite_b=True)
     else:
         raise ValueError(f"Unknown svd_solver: {svd_solver}")
     # Remove the penalty from kernel_X (inplace)
@@ -311,7 +397,7 @@ def nystroem_reduced_rank(
     sqrt_Mn = sqrt(num_centers * num_points)
     kernel_YX_nys = (kernel_Ynys.T / sqrt_Mn) @ (kernel_Xnys / sqrt_Mn)
 
-    _tmp_YX = lstsq(kernel_Y * (num_centers**-1), kernel_YX_nys)[0]
+    _tmp_YX = scipy.linalg.lstsq(kernel_Y * (num_centers**-1), kernel_YX_nys)[0]
     kernel_XYX = kernel_YX_nys.T @ _tmp_YX
 
     # RHS of the generalized eigenvalue problem
@@ -320,9 +406,9 @@ def nystroem_reduced_rank(
     )
 
     add_diagonal_(kernel_Xnys_sq, eps)
-    A = lstsq(kernel_Xnys_sq, kernel_XYX)[0]
+    A = scipy.linalg.lstsq(kernel_Xnys_sq, kernel_XYX)[0]
     if svd_solver == "full":
-        values, vectors = eigh(
+        values, vectors = scipy.linalg.eigh(
             kernel_XYX, kernel_Xnys_sq
         )  # normalization leads to needing to invert evals
     elif svd_solver == "arnoldi":
@@ -387,7 +473,7 @@ def rand_reduced_rank(
     penalty = npts * tikhonov_reg
     add_diagonal_(kernel_X, penalty)
     if precomputed_cholesky is None:
-        cholesky_decomposition = cho_factor(kernel_X)
+        cholesky_decomposition = scipy.linalg.cho_factor(kernel_X)
     else:
         cholesky_decomposition = precomputed_cholesky
     add_diagonal_(kernel_X, -penalty)
@@ -404,17 +490,19 @@ def rand_reduced_rank(
 
     for _ in range(iterated_power):
         # Powered randomized rangefinder
-        sketch = (kernel_Y / npts) @ (sketch - penalty * cho_solve(cholesky_decomposition, sketch))
-        sketch, _ = qr(sketch, mode="economic")  # QR re-orthogonalization
+        sketch = (kernel_Y / npts) @ (
+            sketch - penalty * scipy.linalg.cho_solve(cholesky_decomposition, sketch)
+        )
+        sketch, _ = scipy.linalg.qr(sketch, mode="economic")  # QR re-orthogonalization
 
-    kernel_X_sketch = cho_solve(cholesky_decomposition, sketch)
+    kernel_X_sketch = scipy.linalg.cho_solve(cholesky_decomposition, sketch)
     _M = sketch - penalty * kernel_X_sketch
 
     F_0 = sketch.T @ sketch - penalty * (sketch.T @ kernel_X_sketch)  # Symmetric
     F_0 = 0.5 * (F_0 + F_0.T)
     F_1 = _M.T @ ((kernel_Y @ _M) / npts)
 
-    values, vectors = eig(lstsq(F_0, F_1)[0])
+    values, vectors = scipy.linalg.eig(scipy.linalg.lstsq(F_0, F_1)[0])
     values, stable_values_idxs = stable_topk(values, rank, ignore_warnings=False)
     vectors = vectors[:, stable_values_idxs]
 

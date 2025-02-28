@@ -20,7 +20,7 @@ def topk(vec: ndarray, k: int):
         k (int): Number of elements to keep
 
     Returns:
-        values indices: Top k values and their indices
+        values, indices: top k values and their indices
     """
     assert np.ndim(vec) == 1, "'vec' must be a 1D array"
     assert k > 0, "k should be greater than 0"
@@ -31,7 +31,7 @@ def topk(vec: ndarray, k: int):
 
 
 def sanitize_complex_conjugates(vec: ndarray, tol: float = 10.0):
-    """On 1D complex vector, if the real parts of two elements are close, set them equal. Set to 0 the imaginary parts smaller than `tol` times the machine precision.
+    """This function acts on 1D complex vectors. If the real parts of two elements are close, sets them equal. Furthermore, sets to 0 the imaginary parts smaller than `tol` times the machine precision.
 
     Args:
         vec (ndarray): A 1D vector to sanitize.
