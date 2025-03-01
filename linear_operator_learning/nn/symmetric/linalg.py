@@ -1,13 +1,9 @@
 """Linear algebra utilities for symmetric vector spaces with known group representations."""
 
 import numpy as np
-
-# Created by Daniel Ordoñez (daniels.ordonez@gmail.com) at 13/02/25
 import torch
 from escnn.group import Representation, change_basis
 from escnn.nn import FieldType
-from jinja2.lexer import TOKEN_DOT
-from symm_torch.utils.rep_theory import isotypic_decomp_rep
 from torch import Tensor
 
 from linear_operator_learning.nn.symmetric.stats import isotypic_covariance
@@ -79,6 +75,8 @@ def lstsq(X: Tensor, Y: Tensor, rep_X: Representation, rep_Y: Representation):
         - Y: :math:`(N, D_y)`
         - Output: :math:`(D_y, D_x)`
     """
+    from symm_torch.utils.rep_theory import isotypic_decomp_rep
+
     rep_X = isotypic_decomp_rep(rep_X)
     rep_Y = isotypic_decomp_rep(rep_Y)
     X_iso_reps = rep_X.attributes["isotypic_reps"]
