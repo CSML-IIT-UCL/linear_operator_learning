@@ -115,18 +115,14 @@ def modes(
 
     Args:
         eig_result (EigResult): Eigen decomposition result containing eigenvalues and left/right eigenfunctions.
-        initial_conditions (np.ndarray):
-            kernel matrix of shape :math:`(N_{init}, N)`, where :math:`N_{init}` is the number
-            of initial conditions and :math:`N` is the number of training points.
+        initial_conditions (np.ndarray): kernel matrix or block matrix of the form [[K_x,0][0,N]] when using the dirichlet generator
         obs_train (np.ndarray): Observable evaluated on the training trajectory data,
-            of shape :math:`(N, d_{obs})`, where :math:`N` is the number of training points
-            and :math:`d_{obs}` is the number of observable features.
 
     Shape:
         - ``eig_result["left"]``: :math:`(N, r)`, where :math:`r` is the rank of the decomposition.
         - ``eig_result["right"]``: :math:`(N, r)`, right eigenfunctions of the transition operator.
         - ``eig_result["values"]``: :math:`(r,)`, complex eigenvalues of the transition operator.
-        - ``initial_conditions``:  :math:`(N_{init}, N)`, kernel representation or  :math:`(N_{init}, N*(d+1))` if using the dirichlet estimator.
+        - ``initial_conditions``:  :math:`(N_{init}, N)`, kernel representation or  :math:`(N_{init}, N*d)` if using the dirichlet estimator.
         - ``obs_train``: :math:`(N, d_{obs})`, observable evaluated on training data.
 
     Returns:

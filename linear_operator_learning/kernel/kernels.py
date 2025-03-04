@@ -10,14 +10,13 @@ class RBF_with_grad(RBF):  # noqa: D101
         super().__init__(length_scale, length_scale_bounds)
 
     def grad(self, kernel_X, X, friction):
-        r"""Returns the matrix :math:`N_{i,(k-1)n+j}=<\phi(x_i),d_k\phi(x_j)>` (matrix :math:`N` :footcite:t:`kostic2024learning`
+        r"""Returns the matrix :math:`N_{i,(k-1)n+j}= \langle \phi(x_i),d_k\phi(x_j) \rangle` (matrix :math:`N` :footcite:t:`kostic2024learning`
         where :math:`i = 1,\dots n, k=1, \dots d, j=1,\dots n`
         and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system.
 
         Args:
             kernel_X (np.ndarray): kernel matrix of the training data
             X (np.ndarray): training data
-            sigma (float): length scale of the GAUSSIAN kernel
             friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in :footcite:t:`kostic2024learning`
         Shape:
             ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
@@ -42,20 +41,19 @@ class RBF_with_grad(RBF):  # noqa: D101
         return N
 
     def grad2(self, kernel_X: np.ndarray, X: np.ndarray, friction: np.ndarray):
-        r"""Returns the matrix :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` (matrix :math:`M` in :footcite:t:`kostic2024learning`)
+        r"""Returns the matrix :math:`M_{(k-1)n + i,(l-1)n+j}= \langle d_k\phi(x_i),d_l\phi(x_j) \rangle` (matrix :math:`M` in :footcite:t:`kostic2024learning`)
         where :math:`i = 1,\dots n, k=1, \dots d, j=1,\dots n, l=1, \dots d`
         and :math:`N` is the number of training points and :math:`d` is the dimensionality of the system.
 
         Args:
             kernel_X (np.ndarray): kernel matrix of the training data
             X (np.ndarray): training data
-            sigma (float): length scale of the GAUSSIAN kernel
             friction (np.ndarray): friction parameter of the physical model :math:`s(x)` in :footcite:t:`kostic2024learning`
         Shape:
             ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
             ``X``: :math:`(N,d)`  where :math:`N` is the number of training data and `d` the dimensionality of the system.
             ``friction``: :math:`d`  where :math:`d` is the dimensionality of the system
-        Returns: :math:`M_{(k-1)n + i,(l-1)n+j}=<d_k\phi(x_i),d_l\phi(x_j)>` of shape `N,Nd`, where :math:`N` is the number of training data and :math:`d` the dimension of the system.
+        Returns: :math:`M_{(k-1)n + i,(l-1)n+j}= \langle d_k\phi(x_i),d_l\phi(x_j) \rangle` of shape `Nd,Nd`, where :math:`N` is the number of training data and :math:`d` the dimension of the system.
         """  # noqa: D205
         difference = X[:, np.newaxis, :] - X[np.newaxis, :, :]
 
