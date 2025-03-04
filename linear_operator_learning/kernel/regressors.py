@@ -21,13 +21,11 @@ __all__ = [
     "predict",
     "eig",
     "evaluate_eigenfunction",
-    "predict_physics_informed",
     "pcr",
     "nystroem_pcr",
     "reduced_rank",
     "nystroem_reduced_rank",
     "rand_reduced_rank",
-    "reduced_rank_regression_physics_informed",
 ]
 
 
@@ -106,7 +104,9 @@ def evaluate_eigenfunction(
         Output: :math:`(N_0, R)`
     """
     vr_or_vl = eig_result[which]
-    rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
+    rsqrt_dim = (
+        1 / np.sqrt(eig_result["left"].shape[0])
+    )  # To be consistent with the Dirichlet estimator, we get the dimension of the training set by the left eigenvector #(K_Xin_X_or_Y.shape[1]) ** (-0.5)
     return np.linalg.multi_dot([rsqrt_dim * K_Xin_X_or_Y, vr_or_vl])
 
 
@@ -145,47 +145,6 @@ def predict(
     V_K_YX_U = np.linalg.multi_dot([V.T, kernel_YX, U]) / npts
     M = np.linalg.matrix_power(V_K_YX_U, num_steps - 1)
     return np.linalg.multi_dot([K_dot_U, M, V_dot_obs])
-
-
-def predict_physics_informed(
-    eig_result: FitResult,
-    kernel_obs: np.ndarray,
-    dKernel_obs: np.ndarray,
-    obs_train_X: np.ndarray,
-    shift: float,
-    time: float,
-) -> np.ndarray:
-    r"""Predicts future states using kernel matrices and fitted results using a physics informed generator from :footcite:t:`kostic2024learning`.
-
-    Args:
-        eig_result: EigResult object containing reduced rank regression results
-        kernel_obs (np.ndarray): kernel matrix of the initial conditions and the training set
-        dKernel_obs (np.ndarray): (matrix N in :footcite:t:`kostic2024learning`) derivative of the kernel between the initial condition and the training set: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
-        obs_train_X (ndarray): Observable evaluated on output training data (or inducing points for Nystroem)
-        shift (float): shift parameter of the resolvent
-        time (float): time at which we want to estimate the prediction
-
-    Shape:
-        ``kernel_obs``: :math:`(N, N)`, where :math:`N` is the number of training data.
-
-        ``dkernel_obs``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math:`d` is the dimensionality of the input data.
-
-        ``obs_train_X``: :math:`(N, *)`, where :math:`*` is the shape of the observable.
-
-        Output: :math:`(N, *)`.
-    """
-    ul = eig_result["left"]
-    ur = eig_result["right"]
-    evs = eig_result["values"]
-    npts = kernel_obs.shape[0]
-    h = (np.sqrt(shift) * (kernel_obs @ ur[:npts, :]) + (dKernel_obs @ ur[npts:, :])) / np.sqrt(
-        npts
-    )
-    g = np.sqrt(shift) * obs_train_X @ ul
-
-    pred = (np.exp(evs * time)[np.newaxis, :] * (g[np.newaxis, :] * h)).sum(axis=-1)
-
-    return pred
 
 
 def pcr(
@@ -521,73 +480,4 @@ def rand_reduced_rank(
     V = sqrt(npts) * _M @ vectors
     svals = np.sqrt(values)
     result: FitResult = {"U": U, "V": V, "svals": svals}
-    return result
-
-
-def reduced_rank_regression_physics_informed(
-    kernel_X: np.ndarray,  # kernel matrix of the training data
-    dKernel_X: np.ndarray,  # derivative of the kernel: dK_X_{i,j} = <\phi(x_i),d\phi(x_j)> (matrix N in the paper)
-    dKernel_dX: np.ndarray,  # derivative of the kernel dK_dX_{i,j} = <d\phi(x_i),d\phi(x_j)>
-    shift: float,  # shift parameter of the resolvent
-    tikhonov_reg: float,  # Tikhonov (ridge) regularization parameter, can be 0,
-    rank: int,
-):  # Rank of the estimator)
-    r"""Fits the physics informed Reduced Rank Estimator from :footcite:t:`kostic2024learning`.
-
-    Args:
-        kernel_X (np.ndarray): kernel matrix of the training data
-        dKernel_X (np.ndarray): (matrix N in :footcite:t:`kostic2024learning`) derivative of the kernel: :math:`N_{i,(k-1)n+j} = \langle \phi(x_i),d_k\phi(x_j) \rangle`
-        dKernel_dX (np.ndarray):  (matrix M in :footcite:t:`kostic2024learning`) derivative of the kernel :math:`M_{(l-1)n+i,(k-1)n+j} = \langle d_l\phi(x_i),d_k\phi(x_j) \rangle`
-        shift (float): shift parameter of the resolvent
-        tikhonov_reg (float): Tikhonov (ridge) regularization parameter
-        rank (int): Rank of the estimator
-
-    Shape:
-        ``kernel_X``: :math:`(N, N)`, where :math:`N` is the number of training data.
-
-        ``dkernel_X``: :math:`(N, (d+1)N)`. where :math:`N` is the number of training data amd :math:`d` is the dimensionality of the input data.
-
-        ``dkernel_dX``: :math:`((d+1)N, (d+1)N)`. where :math:`N` is the number of training data amd :math:`d` is the dimensionality of the input data.
-    Returns: FitResult structure containing `U` and `V` matrices
-    """
-    npts = kernel_X.shape[0]
-    sqrt_npts = np.sqrt(npts)
-
-    dimension_derivative = dKernel_dX.shape[0]
-
-    # We follow the notation of the paper
-    J = (
-        kernel_X / sqrt_npts
-        - (dKernel_X / sqrt_npts)
-        @ np.linalg.inv(
-            dKernel_dX + tikhonov_reg * shift * sqrt_npts * np.eye(dimension_derivative)
-        )
-        @ dKernel_X.T
-    )
-
-    sigmas_2, vectors = eigs(
-        J @ kernel_X / sqrt_npts, k=rank + 5, M=(J + tikhonov_reg * np.eye(J.shape[0])) * shift
-    )
-
-    values, stable_values_idxs = stable_topk(sigmas_2, rank, ignore_warnings=False)
-
-    V = vectors[:, stable_values_idxs]
-    # Normalization step
-    V = V @ np.diag(np.sqrt(sqrt_npts) / np.sqrt(np.diag(V.T @ kernel_X @ V)))
-
-    sigma = np.diag(sigmas_2[stable_values_idxs])
-
-    make_U = np.block(
-        [
-            np.eye(npts) / np.sqrt(shift),
-            -dKernel_X
-            @ np.linalg.inv(
-                dKernel_dX + shift * tikhonov_reg * sqrt_npts * np.eye(dimension_derivative)
-            ),
-        ]
-    ).T
-
-    U = make_U @ (kernel_X @ V / sqrt_npts - shift * V @ sigma) / (tikhonov_reg * shift)
-    result: FitResult = {"U": U.real, "V": V.real, "svals": np.sqrt(sigmas_2[stable_values_idxs])}
-
     return result

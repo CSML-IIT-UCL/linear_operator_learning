@@ -8,3 +8,4 @@ Algorithms and utilities to learn linear operators via kernel methods.
 .. toctree::
 
     kernel
+    dynamics
