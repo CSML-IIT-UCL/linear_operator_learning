@@ -15,7 +15,7 @@ Linear Algebra
 
    :code:`nn.symmetric.linalg`
 
-.. autofunction:: linear_operator_learning.nn.symmetric.linalg.invariant_orthogonal_projector
+.. autofunction:: linear_operator_learning.nn.symmetric.linalg.lstsq
 
 .. autofunction:: linear_operator_learning.nn.symmetric.linalg.isotypic_signal2irreducible_subspaces
 
