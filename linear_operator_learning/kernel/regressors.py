@@ -104,7 +104,9 @@ def evaluate_eigenfunction(
         Output: :math:`(N_0, R)`
     """
     vr_or_vl = eig_result[which]
-    rsqrt_dim = (K_Xin_X_or_Y.shape[1]) ** (-0.5)
+    rsqrt_dim = (
+        1 / np.sqrt(eig_result["left"].shape[0])
+    )  # To be consistent with the Dirichlet estimator, we get the dimension of the training set by the left eigenvector #(K_Xin_X_or_Y.shape[1]) ** (-0.5)
     return np.linalg.multi_dot([rsqrt_dim * K_Xin_X_or_Y, vr_or_vl])
 
 
