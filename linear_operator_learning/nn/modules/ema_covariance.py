@@ -6,7 +6,13 @@ from torch import Tensor
 
 
 class EMACovariance(torch.nn.Module):
-    """Exponential moving average of the covariance matrices.
+    r"""Exponential moving average of the covariance matrices.
+
+    Uses the following update rule:
+
+    .. math::
+
+        C_{k + 1} = (1 - m)C_{k} + m \hat{C}
 
     Args:
         feature_dim: The number of features in the input and output tensors.
