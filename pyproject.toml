@@ -1,6 +1,6 @@
 [project]
 name = "linear-operator-learning"
-version = "0.2.3"
+version = "0.2.4"
 description = "A package to learn linear operators"
 readme = "README.md"
 authors = [
@@ -12,12 +12,6 @@ dependencies = [
     "numpy>=1.26",
     "scipy>=1.12",
     "torch>=2.0",
-]
-
-[project.optional-dependencies]
-symm = [
-    "lie-learn==0.0.2; sys_platform == 'linux'",
-    "symm-torch ; sys_platform == 'linux'"
 ]
 
 [build-system]
@@ -75,9 +69,6 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.uv.sources]
-symm-torch = { git = "https://github.com/Danfoa/symm_torch.git" }
 
 [bumpver]
 current_version = "0.2.3"
