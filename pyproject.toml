@@ -76,7 +76,7 @@ ignore = [
 convention = "google"
 
 [bumpver]
-current_version = "0.2.4"
+current_version = "0.2.3"
 version_pattern = "MAJOR.MINOR.PATCH"
 
 [bumpver.file_patterns]
