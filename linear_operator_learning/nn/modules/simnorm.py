@@ -2,6 +2,7 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 
 class SimNorm(nn.Module):
@@ -17,7 +18,7 @@ class SimNorm(nn.Module):
         super().__init__()
         self.dim = dim
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         """Forward pass of the simplicial normalization module."""
         shp = x.shape
         x = x.view(*shp[:-1], -1, self.dim)
