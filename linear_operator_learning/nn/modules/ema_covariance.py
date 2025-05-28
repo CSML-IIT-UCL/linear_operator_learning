@@ -127,7 +127,6 @@ def test_EMACovariance():  # noqa: D103
     assert cov_module.is_initialized.item()
     assert torch.allclose(cov_module.mean_X, dummy_X.mean(dim=0))
     assert torch.allclose(cov_module.mean_Y, dummy_Y.mean(dim=0))
-    if not cov_module.is_centered:
-        assert torch.allclose(cov_module.cov_X, torch.cov(dummy_X.T))
-        assert torch.allclose(cov_module.cov_Y, torch.cov(dummy_Y.T))
-        assert torch.allclose(cov_module.cov_XY, torch.cov(dummy_X.T, dummy_Y.T))
+    if cov_module.is_centered:
+        assert torch.allclose(cov_module.cov_X, torch.cov(dummy_X.T, correction=0))
+        assert torch.allclose(cov_module.cov_Y, torch.cov(dummy_Y.T, correction=0))
