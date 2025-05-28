@@ -62,5 +62,9 @@ Modules
     :members:
     :exclude-members: __init__, __new__, forward
 
+.. autoclass:: linear_operator_learning.nn.EMACovariance
+    :members:
+    :exclude-members: __init__, __new__, forward
+
 .. footbibliography::
 

@@ -24,6 +24,7 @@ dev = [
     "pre-commit>=4.1.0",
     "pytest>=8.3.4",
     "ruff>=0.9.4",
+    "ty>=0.0.1a7",
 ]
 docs = [
     "myst-parser>=4.0.0",
