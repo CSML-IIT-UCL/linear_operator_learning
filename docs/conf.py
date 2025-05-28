@@ -46,7 +46,7 @@ autodoc_typehints = "description"
 autodoc_member_order = "groupwise"
 napoleon_preprocess_types = True
 napoleon_use_rtype = False
-autodoc_mock_imports = ["escnn", "escnn.group", "symm_torch"]
+autodoc_mock_imports = ["escnn", "escnn.group"]
 
 master_doc = "index"
 

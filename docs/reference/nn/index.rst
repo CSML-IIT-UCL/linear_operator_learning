@@ -11,4 +11,3 @@ Functions and modules to learn linear operators via neural networks.
     functional
     stats
     linalg
-    symmetric
