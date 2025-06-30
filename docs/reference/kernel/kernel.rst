@@ -75,4 +75,10 @@ General Utilities
 .. autofunction:: linear_operator_learning.kernel.utils.sanitize_complex_conjugates
 
 
+.. _kernels:
+Custom Kernels
+-----------------
+.. autoclass:: linear_operator_learning.kernel.kernels.RBF_with_grad
+    :members:
+    :exclude-members: __init__, __new__
 .. footbibliography::
